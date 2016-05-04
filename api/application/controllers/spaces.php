@@ -10,7 +10,10 @@ class Spaces extends CI_Controller {
   public function show($uid)
   {
     if (!$space = $this->spaces_model->getEntryByUid($uid)) {
-      $this->message("No space found with this id: $uid");
+      $this->_respond(array(
+        'status'  => 0,
+        'message' => 'No space found with this id: '.$uid
+      ));
       return false;
     }
     echo json_encode($space);
@@ -28,11 +31,14 @@ class Spaces extends CI_Controller {
       $this->spaces_model->insertEntry($data);
     }
 
-    $this->message("Sucessfull saved data");
+    $this->_respond(array(
+      'status'  => 1,
+      'message' => 'Successful saved data'
+    ));
   }
 
-  public function message($message){
-    echo json_encode(array("message" => $message));
+  private function _respond($data){
+    echo json_encode($data);
   }
 
   private function _getData(){
