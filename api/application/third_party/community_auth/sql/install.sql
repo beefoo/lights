@@ -28,9 +28,9 @@ CREATE TABLE IF NOT EXISTS `ci_sessions` (
 --
 -- Table structure for table `auth_sessions`
 --
--- The IP address and user agent are only 
+-- The IP address and user agent are only
 -- included so that sessions can be identified.
--- This can be helpful if you want to show the 
+-- This can be helpful if you want to show the
 -- user their sessions, and allow them to terminate
 -- selected sessions.
 --
@@ -129,23 +129,23 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Trigger updates passwd_modified_at field if passwd modified
 --
 
-delimiter $$
-DROP TRIGGER IF EXISTS ca_passwd_trigger ;
-$$
-CREATE TRIGGER ca_passwd_trigger BEFORE UPDATE ON users
-FOR EACH ROW
-BEGIN
-    IF ((NEW.passwd <=> OLD.passwd) = 0) THEN
-        SET NEW.passwd_modified_at = NOW();
-    END IF;
-END;$$
-delimiter ;
+-- delimiter $$
+-- DROP TRIGGER IF EXISTS ca_passwd_trigger ;
+-- $$
+-- CREATE TRIGGER ca_passwd_trigger BEFORE UPDATE ON users
+-- FOR EACH ROW
+-- BEGIN
+--     IF ((NEW.passwd <=> OLD.passwd) = 0) THEN
+--         SET NEW.passwd_modified_at = NOW();
+--     END IF;
+-- END;$$
+-- delimiter ;
 
 -- --------------------------------------------------------
 
 --
 -- Table structure for table `acl_categories`
--- 
+--
 
 CREATE TABLE `acl_categories` (
   `category_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -157,14 +157,14 @@ CREATE TABLE `acl_categories` (
 
 --
 -- Table structure for table `acl_actions`
--- 
+--
 
 CREATE TABLE `acl_actions` (
   `action_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `action_name` varchar(100) NOT NULL,
   `category_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`action_id`),
-  FOREIGN KEY (`category_id`) REFERENCES `acl_categories`(`category_id`) 
+  FOREIGN KEY (`category_id`) REFERENCES `acl_categories`(`category_id`)
   ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -172,16 +172,16 @@ CREATE TABLE `acl_actions` (
 
 --
 -- Table structure for table `acl`
--- 
+--
 
 CREATE TABLE `acl` (
   `ai` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `action_id` int(10) unsigned NOT NULL,
   `user_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`ai`),
-  FOREIGN KEY (`action_id`) REFERENCES `acl_actions`(`action_id`) 
+  FOREIGN KEY (`action_id`) REFERENCES `acl_actions`(`action_id`)
   ON DELETE CASCADE,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) 
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`)
   ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
