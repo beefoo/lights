@@ -3,9 +3,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Migration_Add_spaces extends CI_Migration {
   public function up() {
     $this->dbforge->add_field(array(
-      'id' => array('type' => 'INT', 'constraint' => 5, 'unsigned' => TRUE, 'auto_increment' => TRUE),
+      'id' => array('type' => 'INT', 'constraint' => 10, 'unsigned' => TRUE, 'auto_increment' => TRUE),
       'uid' => array('type' => 'VARCHAR','constraint' => 40, 'null' => FALSE),
-      'user_id' => array('type' => 'INT', 'constraint' => 5, 'unsigned' => TRUE),
+      'user_id' => array('type' => 'INT', 'constraint' => 10, 'unsigned' => TRUE),
       'data' => array('type' => 'TEXT'),
       'date_created' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE),
       'date_modified' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE)
