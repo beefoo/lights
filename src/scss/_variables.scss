@@ -1,0 +1,18 @@
+$white: #fff;
+$grayLightest: #F5F5F5;
+$grayLighter: #EEEEEE;
+$grayLight: #E0E0E0;
+$gray: #BDBDBD;
+$grayDark: #757575;
+$grayDarker: #424242;
+$grayDarkest: #212121;
+$black: #000;
+
+$red: #F44336;
+$redLight: #EF9A9A;
+$yellow: #FFF59D;
+
+$secondary: $red;
+$secondaryLight: lighten($secondary, 10%);
+$secondaryInverse: $redLight;
+$highlight: $yellow;

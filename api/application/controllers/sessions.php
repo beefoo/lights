@@ -14,6 +14,9 @@ class Sessions extends MY_Controller
   // POST /api/sessions/create?login_string=XXX&login_pass=XXX&login_token=XXX
   public function create()
   {
+    // Allow this page to be an accepted login page
+    $this->config->set_item('allowed_pages_for_login', array('sessions/create') );
+
     // Make sure we aren't redirecting after a successful login
     $this->authentication->redirect_after_login = FALSE;
 
@@ -37,7 +40,8 @@ class Sessions extends MY_Controller
           'username' => $this->auth_username,
           'email'    => $this->auth_email
         ),
-        'message' => 'Sucessfully logged in as '.$this->auth_username
+        'message' => 'Sucessfully logged in as '.$this->auth_username,
+        'token'   => $this->tokens->token(),
       ));
     }
 
@@ -77,7 +81,8 @@ class Sessions extends MY_Controller
           'username' => $this->auth_username,
           'email'    => $this->auth_email
         ),
-        'message' => 'You are logged in as '.$this->auth_username
+        'message' => 'You are logged in as '.$this->auth_username,
+        'token' => $this->tokens->token()
       ));
     }
 
@@ -86,7 +91,8 @@ class Sessions extends MY_Controller
     {
       $this->_respond(array(
         'status'  => 0,
-        'message' => "Nobody is logged in"
+        'message' => "Nobody is logged in",
+        'token' => $this->tokens->token()
       ));
     }
   }
@@ -98,7 +104,17 @@ class Sessions extends MY_Controller
 
     $this->_respond(array(
       'status'  => 1,
-      'message' => "Successfully logged out"
+      'message' => "Successfully logged out",
+      'token' => $this->tokens->token()
+    ));
+  }
+
+  // POST /api/sessions/token
+  public function token()
+  {
+    $this->_respond(array(
+      'status'  => 1,
+      'token' => $this->tokens->token()
     ));
   }
 
