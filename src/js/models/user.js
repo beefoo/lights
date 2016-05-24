@@ -21,8 +21,9 @@ var UserModel = (function() {
         $.publish('users.auth.success', [resp.user, resp.message]);
       }
 
-      // save token
+      // save/publish token
       _this.token = resp.token;
+      $.publish('sessions.token', resp.token);
     });
   };
 
@@ -31,14 +32,19 @@ var UserModel = (function() {
 
     $.getJSON(this.opt.base_url + '/sessions/token', function(resp) {
       _this.token = resp.token;
+      $.publish('sessions.token', resp.token);
     });
   };
 
-  UserModel.prototype.isLoggedIn = function(){
+  UserModel.prototype.getUserData = function(){
     return this.userData;
   };
 
-  UserModel.prototype.login = function(login, password){
+  UserModel.prototype.isLoggedIn = function(){
+    return this.getUserData();
+  };
+
+  UserModel.prototype.signin = function(login, password){
     if (!this.token) return false;
 
     var _this = this,
@@ -62,17 +68,18 @@ var UserModel = (function() {
     },'json');
   };
 
-  UserModel.prototype.logout = function(){
+  UserModel.prototype.signout = function(){
     var _this = this;
 
-    $.post(this.opt.base_url + '/sessions/destroy', data, function(resp){
+    $.post(this.opt.base_url + '/sessions/destroy', {}, function(resp){
       console.log(resp);
 
       if (resp.token) {
         _this.token = resp.token;
       }
 
-      $.publish('users.logout', resp.message);
+      _this.userData = false;
+      $.publish('users.signout', resp.message);
 
     },'json');
   };
