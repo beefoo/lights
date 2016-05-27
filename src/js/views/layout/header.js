@@ -32,7 +32,7 @@ var HeaderView = (function() {
       _this.opt.user_model.signout();
     })
 
-    $.subscribe('users.login.success', function(e, user, message){
+    $.subscribe('users.signin.success', function(e, user, message){
       _this.opt.user = user;
       _this.render();
     });

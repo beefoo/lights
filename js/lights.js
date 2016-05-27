@@ -161,11 +161,11 @@ var UserModel = (function() {
       // success
       if (resp.status) {
         _this.userData = resp.user;
-        $.publish('users.login.success', [resp.user, resp.message]);
+        $.publish('users.signin.success', [resp.user, resp.message]);
 
       // failure
       } else {
-        $.publish('users.login.failure', resp.message);
+        $.publish('users.signin.failure', resp.message);
       }
 
       _this.token = resp.token;
@@ -185,6 +185,30 @@ var UserModel = (function() {
 
       _this.userData = false;
       $.publish('users.signout', resp.message);
+
+    },'json');
+  };
+
+  UserModel.prototype.signup = function(username, email, passwd){
+    if (!this.token) return false;
+
+    var _this = this,
+        data = {login_string: login, login_pass: password, login_token: this.token};
+
+    $.post(this.opt.base_url + '/users/create', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.signup.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.signup.failure', resp.message);
+      }
+
+      _this.token = resp.token;
 
     },'json');
   };
@@ -227,7 +251,7 @@ var HeaderView = (function() {
       _this.opt.user_model.signout();
     })
 
-    $.subscribe('users.login.success', function(e, user, message){
+    $.subscribe('users.signin.success', function(e, user, message){
       _this.opt.user = user;
       _this.render();
     });
@@ -287,12 +311,12 @@ var SigninView = (function() {
     });
 
     // listen for user login success
-    $.subscribe('users.login.success', function(e, user, message){
+    $.subscribe('users.signin.success', function(e, user, message){
       _this.onSuccess(user, message);
     });
 
     // listen for user login failure
-    $.subscribe('users.login.failure', function(e, message){
+    $.subscribe('users.signin.failure', function(e, message){
       _this.onFailure(message);
     });
 
@@ -382,6 +406,102 @@ var SpaceView = (function() {
 
 
 
+var SignupView = (function() {
+  function SignupView(options) {
+    var defaults = {
+      el: '#main',
+      id: 'sign-up',
+      template: _.template(TEMPLATES['signup.ejs'])
+    };
+    this.opt = _.extend(defaults, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+    this.opt.user = this.opt.user_model.getUserData();
+
+    this.loadListeners();
+  }
+
+  SignupView.prototype.init = function(){
+    this.render();
+  };
+
+  SignupView.prototype.isActive = function(){
+    return (this.$el.attr('view') == this.opt.id);
+  };
+
+  SignupView.prototype.loadListeners = function(){
+    var _this = this;
+
+    // listen for form submission
+    this.$el.on('submit', '.signup-form', function(e){
+      e.preventDefault();
+      var username = $(this).find('input[name="username"]').val();
+      var email = $(this).find('input[name="email"]').val();
+      var passwd = $(this).find('input[name="passwd"]').val();
+      _this.submit(username, email, passwd);
+    });
+
+    // listen for user login success
+    $.subscribe('users.signup.success', function(e, user, message){
+      _this.onSuccess(user, message);
+    });
+
+    // listen for user login failure
+    $.subscribe('users.signup.failure', function(e, message){
+      _this.onFailure(message);
+    });
+
+    // listen for auth success
+    $.subscribe('users.auth.success', function(e, user, message){
+      _this.onAuth(user, message);
+    });
+
+    // listen for sign out
+    $.subscribe('users.signout', function(e, message){
+      _this.onSignout(message);
+    });
+  };
+
+  SignupView.prototype.onAuth = function(user, message){
+    this.opt.user = user;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  SignupView.prototype.onFailure = function(message){
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+  };
+
+  SignupView.prototype.onSignout = function(message){
+    this.opt.user = false;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  SignupView.prototype.onSuccess = function(user, message){
+    this.opt.user = user;
+    this.$el.find('.message').html(message).addClass('active');
+    setTimeout(function(){
+      window.location.hash = '/';
+    }, 2000);
+  };
+
+  SignupView.prototype.render = function(){
+    this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+  };
+
+  SignupView.prototype.submit = function(username, email, passwd){
+    // console.log(login, password)
+    this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
+    this.opt.user_model.signup(username, email, passwd);
+  };
+
+  return SignupView;
+
+})();
 
 
 $(function(){

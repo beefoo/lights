@@ -33,12 +33,12 @@ var SigninView = (function() {
     });
 
     // listen for user login success
-    $.subscribe('users.login.success', function(e, user, message){
+    $.subscribe('users.signin.success', function(e, user, message){
       _this.onSuccess(user, message);
     });
 
     // listen for user login failure
-    $.subscribe('users.login.failure', function(e, message){
+    $.subscribe('users.signin.failure', function(e, message){
       _this.onFailure(message);
     });
 

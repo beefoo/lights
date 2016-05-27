@@ -56,11 +56,11 @@ var UserModel = (function() {
       // success
       if (resp.status) {
         _this.userData = resp.user;
-        $.publish('users.login.success', [resp.user, resp.message]);
+        $.publish('users.signin.success', [resp.user, resp.message]);
 
       // failure
       } else {
-        $.publish('users.login.failure', resp.message);
+        $.publish('users.signin.failure', resp.message);
       }
 
       _this.token = resp.token;
@@ -80,6 +80,30 @@ var UserModel = (function() {
 
       _this.userData = false;
       $.publish('users.signout', resp.message);
+
+    },'json');
+  };
+
+  UserModel.prototype.signup = function(username, email, passwd){
+    if (!this.token) return false;
+
+    var _this = this,
+        data = {login_string: login, login_pass: password, login_token: this.token};
+
+    $.post(this.opt.base_url + '/users/create', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.signup.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.signup.failure', resp.message);
+      }
+
+      _this.token = resp.token;
 
     },'json');
   };

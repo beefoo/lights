@@ -1,0 +1,12 @@
+<% if (user) { %>
+  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p>
+
+<% } else { %>
+  <form class="form signup-form">
+    <input name="username" type="text" placeholder="Username" />
+    <input name="email" type="email" placeholder="Email" />
+    <input name="passwd" type="password" placeholder="Password" />
+    <button type="submit">Submit</button>
+    <div class="message"></div>
+  </form>
+<% } %>
