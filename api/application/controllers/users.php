@@ -6,6 +6,8 @@ class Users extends CI_Controller
   public function __construct()
   {
     parent::__construct();
+
+    $this->ion_auth->set_error_delimiters('','');
   }
 
   // POST /api/users/create?email=XXX&pass=XXX
