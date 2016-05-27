@@ -8,6 +8,7 @@ class Sessions extends CI_Controller
     parent::__construct();
 
     $this->ion_auth->set_error_delimiters('','');
+    $this->ion_auth->set_message_delimiters('','');
   }
 
   // POST /api/sessions/create?email=XXX&pass=XXX

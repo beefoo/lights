@@ -8,6 +8,7 @@ class Users extends CI_Controller
     parent::__construct();
 
     $this->ion_auth->set_error_delimiters('','');
+    $this->ion_auth->set_message_delimiters('','');
   }
 
   // POST /api/users/create?email=XXX&pass=XXX
@@ -49,6 +50,100 @@ class Users extends CI_Controller
         'message' => $errors_string
       ));
     }
+  }
+
+  // POST /api/users/forgot_password?email=XXX
+  public function forgot_password()
+  {
+    $user_data = $this->_getData(array('email'));
+
+    if ($forgotten = $this->ion_auth->forgotten_password($user_data['email']))
+    {
+      $messages_string = implode(", ", $this->ion_auth->messages_array());
+      $this->_respond(array(
+        'status'  => 1,
+        'message' => $messages_string
+      ));
+    }
+
+    else
+    {
+      $errors_string = implode(", ", $this->ion_auth->errors_array());
+      $this->_respond(array(
+        'status'  => 0,
+        'message' => $errors_string
+      ));
+    }
+  }
+
+  // POST /api/users/reset_password?code=XXX&pass=XXX
+  public function reset_password()
+  {
+    $user_data = $this->_getData(array('code','pass'));
+    $reset = FALSE;
+
+    if ($user = $this->ion_auth->forgotten_password_check($user_data["code"]))
+    {
+      if ($this->ion_auth->update($user->id, array('password' => $user_data["pass"])))
+      {
+        $messages_string = implode(", ", $this->ion_auth->messages_array());
+        $this->_respond(array(
+          'status'  => 1,
+          'message' => $messages_string
+        ));
+      }
+    }
+
+    if (!$reset)
+    {
+      $errors_string = implode(", ", $this->ion_auth->errors_array());
+      $this->_respond(array(
+        'status'  => 0,
+        'message' => $errors_string
+      ));
+    }
+  }
+
+  // POST /api/users/update?email=XXX&pass=XXX&current_pass=XXX
+  public function update()
+  {
+    $user_data = $this->_getData(array('email','pass','current_pass'));
+    $updated = FALSE;
+    if ($user = $this->ion_auth->user()->row())
+    {
+      // authenticate current_pass
+      if($this->ion_auth->login($user->email, $user_data['current_pass'], $remember))
+      {
+        $data = array('email' => $user_data['email']);
+
+        // only submit new password if set
+        if ($user_data['pass']) $data['password'] = $user_data['pass'];
+
+        if ($this->ion_auth->update($user->id, $data))
+        {
+          $updated = TRUE;
+          $this->_respond(array(
+            'status'  => 1,
+            'user' => array(
+              'user_id'  => $user->id,
+              'email'    => $user_data['email']
+            ),
+            'message' => 'Successfully updated user account'
+          ));
+        }
+
+      }
+    }
+
+    if (!$updated)
+    {
+      $errors_string = implode(", ", $this->ion_auth->errors_array());
+      $this->_respond(array(
+        'status'  => 0,
+        'message' => $errors_string
+      ));
+    }
+
   }
 
   private function _getData($fields){
