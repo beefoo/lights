@@ -20,19 +20,6 @@ var UserModel = (function() {
         _this.userData = resp.user;
         $.publish('users.auth.success', [resp.user, resp.message]);
       }
-
-      // save/publish token
-      _this.token = resp.token;
-      $.publish('sessions.token', resp.token);
-    });
-  };
-
-  UserModel.prototype.getToken = function(){
-    var _this = this;
-
-    $.getJSON(this.opt.base_url + '/sessions/token', function(resp) {
-      _this.token = resp.token;
-      $.publish('sessions.token', resp.token);
     });
   };
 
@@ -44,11 +31,10 @@ var UserModel = (function() {
     return this.getUserData();
   };
 
-  UserModel.prototype.signin = function(login, password){
-    if (!this.token) return false;
+  UserModel.prototype.signin = function(email, pass){
 
     var _this = this,
-        data = {login_string: login, login_pass: password, login_token: this.token};
+        data = {email: email, pass: pass};
 
     $.post(this.opt.base_url + '/sessions/create', data, function(resp){
       console.log(resp);
@@ -63,8 +49,6 @@ var UserModel = (function() {
         $.publish('users.signin.failure', resp.message);
       }
 
-      _this.token = resp.token;
-
     },'json');
   };
 
@@ -74,21 +58,16 @@ var UserModel = (function() {
     $.post(this.opt.base_url + '/sessions/destroy', {}, function(resp){
       console.log(resp);
 
-      if (resp.token) {
-        _this.token = resp.token;
-      }
-
       _this.userData = false;
       $.publish('users.signout', resp.message);
 
     },'json');
   };
 
-  UserModel.prototype.signup = function(username, email, passwd){
-    if (!this.token) return false;
+  UserModel.prototype.signup = function(email, pass){
 
     var _this = this,
-        data = {login_string: login, login_pass: password, login_token: this.token};
+        data = {email: email, pass: pass};
 
     $.post(this.opt.base_url + '/users/create', data, function(resp){
       console.log(resp);
@@ -102,8 +81,6 @@ var UserModel = (function() {
       } else {
         $.publish('users.signup.failure', resp.message);
       }
-
-      _this.token = resp.token;
 
     },'json');
   };

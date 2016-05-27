@@ -1,65 +1,50 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Users extends MY_Controller
+class Users extends CI_Controller
 {
   public function __construct()
   {
     parent::__construct();
-
-    // Force SSL
-    //$this->force_ssl();
   }
 
-  // POST /api/users/create?username=XXX&passwd=XXX&email=XXX
+  // POST /api/users/create?email=XXX&pass=XXX
   public function create()
   {
-    // retrieve user data
-    $user_data = $this->_getData(array('username','passwd','email'));
+    // Retrieve user data
+    $user_data = $this->_getData(array('email','pass'));
+    $registered = FALSE;
 
-    // retrieve auth user
-    $this->is_logged_in();
-
-    // Load resources
-    $this->load->model('users_model');
-    $this->load->model('validation_callables');
-    $this->load->library('form_validation');
-
-    // Setup validation rules
-    $this->form_validation->set_data($user_data);
-    $validation_rules = $this->_validationRulesCreate();
-    $this->form_validation->set_rules($validation_rules);
-
-    // Run validation
-    if( $this->form_validation->run() )
+    // Attempt registration
+    if ($user_id = $this->ion_auth->register($user_data['email'], $user_data['pass'], $user_data['email']))
     {
-      $user_data['passwd']     = $this->authentication->hash_passwd($user_data['passwd']);
-      $user_data['user_id']    = $this->users_model->get_unused_id();
-      $user_data['created_at'] = date('Y-m-d H:i:s');
-
-      // If username is not used, it must be entered into the record as NULL
-      if(empty($user_data['username']))
+      // Now attempt auto-login
+      $remember = TRUE;
+      if($this->ion_auth->login($user_data['email'], $user_data['pass'], $remember))
       {
-        $user_data['username'] = NULL;
+        if ($user = $this->ion_auth->user()->row())
+        {
+          $registered = TRUE;
+          $this->_respond(array(
+            'status'   => 1,
+            'user' => array(
+              'user_id'  => $user->id,
+              'email'    => $user->email
+            ),
+            'message' => 'Registration successful'
+          ));
+        }
+
       }
-
-      $this->db->set($user_data)
-        ->insert(config_item('user_table'));
-
-      if( $this->db->affected_rows() == 1 )
-        $this->_respond(array(
-          'status'  => 1,
-          'message' => 'User ' . $user_data['username'] . ' was successfully created'
-        ));
     }
 
     // Validation failed
-    else
+    if (!$registered)
     {
+      $errors_string = implode(", ", $this->ion_auth->errors_array());
       $this->_respond(array(
         'status'  => 0,
-        'message' => 'Registration contains errors',
-        'errors' => $this->form_validation->error_array()
+        'message' => $errors_string
       ));
     }
   }
@@ -79,30 +64,6 @@ class Users extends MY_Controller
     echo json_encode($data);
   }
 
-  private function _validationRulesCreate(){
-    return array(
-      array(
-        'field' => 'username',
-        'label' => 'username',
-        'rules' => 'max_length[20]|is_unique[' . config_item('user_table') . '.username]',
-        'errors' => array('is_unique' => 'Username already in use.')
-      ),
-      array(
-        'field' => 'passwd',
-        'label' => 'passwd',
-        'rules' => 'trim|required|min_length['. config_item('min_chars_for_password') .']|max_length['. config_item('max_chars_for_password') .']',
-        'errors' => array(
-            'required' => 'The password field is required.'
-        )
-      ),
-      array(
-        'field'  => 'email',
-        'label'  => 'email',
-        'rules'  => 'trim|required|valid_email|is_unique[' . config_item('user_table') . '.email]',
-        'errors' => array('is_unique' => 'Email address already in use.')
-      )
-    );
-  }
 }
 
 /* End of file users.php */

@@ -101,7 +101,8 @@ window.CONFIG = {
 
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="login_string" type="text" placeholder="Username / Email" />    <input name="login_pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<p>Main</p>';
 var UserModel = (function() {
   function UserModel(options) {
@@ -125,19 +126,6 @@ var UserModel = (function() {
         _this.userData = resp.user;
         $.publish('users.auth.success', [resp.user, resp.message]);
       }
-
-      // save/publish token
-      _this.token = resp.token;
-      $.publish('sessions.token', resp.token);
-    });
-  };
-
-  UserModel.prototype.getToken = function(){
-    var _this = this;
-
-    $.getJSON(this.opt.base_url + '/sessions/token', function(resp) {
-      _this.token = resp.token;
-      $.publish('sessions.token', resp.token);
     });
   };
 
@@ -149,11 +137,10 @@ var UserModel = (function() {
     return this.getUserData();
   };
 
-  UserModel.prototype.signin = function(login, password){
-    if (!this.token) return false;
+  UserModel.prototype.signin = function(email, pass){
 
     var _this = this,
-        data = {login_string: login, login_pass: password, login_token: this.token};
+        data = {email: email, pass: pass};
 
     $.post(this.opt.base_url + '/sessions/create', data, function(resp){
       console.log(resp);
@@ -168,8 +155,6 @@ var UserModel = (function() {
         $.publish('users.signin.failure', resp.message);
       }
 
-      _this.token = resp.token;
-
     },'json');
   };
 
@@ -179,21 +164,16 @@ var UserModel = (function() {
     $.post(this.opt.base_url + '/sessions/destroy', {}, function(resp){
       console.log(resp);
 
-      if (resp.token) {
-        _this.token = resp.token;
-      }
-
       _this.userData = false;
       $.publish('users.signout', resp.message);
 
     },'json');
   };
 
-  UserModel.prototype.signup = function(username, email, passwd){
-    if (!this.token) return false;
+  UserModel.prototype.signup = function(email, pass){
 
     var _this = this,
-        data = {login_string: login, login_pass: password, login_token: this.token};
+        data = {email: email, pass: pass};
 
     $.post(this.opt.base_url + '/users/create', data, function(resp){
       console.log(resp);
@@ -207,8 +187,6 @@ var UserModel = (function() {
       } else {
         $.publish('users.signup.failure', resp.message);
       }
-
-      _this.token = resp.token;
 
     },'json');
   };
@@ -252,6 +230,11 @@ var HeaderView = (function() {
     })
 
     $.subscribe('users.signin.success', function(e, user, message){
+      _this.opt.user = user;
+      _this.render();
+    });
+
+    $.subscribe('users.signup.success', function(e, user, message){
       _this.opt.user = user;
       _this.render();
     });
@@ -305,9 +288,9 @@ var SigninView = (function() {
     // listen for form submission
     this.$el.on('submit', '.signin-form', function(e){
       e.preventDefault();
-      var login = $(this).find('input[name="login_string"]').val();
-      var pass = $(this).find('input[name="login_pass"]').val();
-      _this.submit(login, pass);
+      var email = $(this).find('input[name="email"]').val();
+      var pass = $(this).find('input[name="pass"]').val();
+      _this.submit(email, pass);
     });
 
     // listen for user login success
@@ -362,10 +345,10 @@ var SigninView = (function() {
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
   };
 
-  SigninView.prototype.submit = function(login, password){
-    // console.log(login, password)
+  SigninView.prototype.submit = function(email, password){
+    // console.log(email, password)
     this.$el.find('[type="submit"]').prop('disabled', true).text('Logging In...');
-    this.opt.user_model.signin(login, password);
+    this.opt.user_model.signin(email, password);
   };
 
   return SigninView;
@@ -435,10 +418,9 @@ var SignupView = (function() {
     // listen for form submission
     this.$el.on('submit', '.signup-form', function(e){
       e.preventDefault();
-      var username = $(this).find('input[name="username"]').val();
       var email = $(this).find('input[name="email"]').val();
-      var passwd = $(this).find('input[name="passwd"]').val();
-      _this.submit(username, email, passwd);
+      var pass = $(this).find('input[name="pass"]').val();
+      _this.submit(email, pass);
     });
 
     // listen for user login success
@@ -493,10 +475,9 @@ var SignupView = (function() {
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
   };
 
-  SignupView.prototype.submit = function(username, email, passwd){
-    // console.log(login, password)
+  SignupView.prototype.submit = function(email, pass){
     this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
-    this.opt.user_model.signup(username, email, passwd);
+    this.opt.user_model.signup(email, pass);
   };
 
   return SignupView;
@@ -528,7 +509,8 @@ $(function(){
 
     // sign up
     '/signup': function(){
-
+      this.signup_view = this.signup_view || new SignupView(defaults);
+      this.signup_view.init();
     },
 
     // home

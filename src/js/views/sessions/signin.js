@@ -27,9 +27,9 @@ var SigninView = (function() {
     // listen for form submission
     this.$el.on('submit', '.signin-form', function(e){
       e.preventDefault();
-      var login = $(this).find('input[name="login_string"]').val();
-      var pass = $(this).find('input[name="login_pass"]').val();
-      _this.submit(login, pass);
+      var email = $(this).find('input[name="email"]').val();
+      var pass = $(this).find('input[name="pass"]').val();
+      _this.submit(email, pass);
     });
 
     // listen for user login success
@@ -84,10 +84,10 @@ var SigninView = (function() {
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
   };
 
-  SigninView.prototype.submit = function(login, password){
-    // console.log(login, password)
+  SigninView.prototype.submit = function(email, password){
+    // console.log(email, password)
     this.$el.find('[type="submit"]').prop('disabled', true).text('Logging In...');
-    this.opt.user_model.signin(login, password);
+    this.opt.user_model.signin(email, password);
   };
 
   return SigninView;

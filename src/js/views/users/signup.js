@@ -27,10 +27,9 @@ var SignupView = (function() {
     // listen for form submission
     this.$el.on('submit', '.signup-form', function(e){
       e.preventDefault();
-      var username = $(this).find('input[name="username"]').val();
       var email = $(this).find('input[name="email"]').val();
-      var passwd = $(this).find('input[name="passwd"]').val();
-      _this.submit(username, email, passwd);
+      var pass = $(this).find('input[name="pass"]').val();
+      _this.submit(email, pass);
     });
 
     // listen for user login success
@@ -85,10 +84,9 @@ var SignupView = (function() {
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
   };
 
-  SignupView.prototype.submit = function(username, email, passwd){
-    // console.log(login, password)
+  SignupView.prototype.submit = function(email, pass){
     this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
-    this.opt.user_model.signup(username, email, passwd);
+    this.opt.user_model.signup(email, pass);
   };
 
   return SignupView;

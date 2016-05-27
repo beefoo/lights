@@ -1,67 +1,44 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Sessions extends MY_Controller
+class Sessions extends CI_Controller
 {
   public function __construct()
   {
     parent::__construct();
-
-    // Force SSL
-    //$this->force_ssl();
   }
 
-  // POST /api/sessions/create?login_string=XXX&login_pass=XXX&login_token=XXX
+  // POST /api/sessions/create?email=XXX&pass=XXX
   public function create()
   {
-    // Allow this page to be an accepted login page
-    $this->config->set_item('allowed_pages_for_login', array('sessions/create') );
-
-    // Make sure we aren't redirecting after a successful login
-    $this->authentication->redirect_after_login = FALSE;
-
-    // Do the login attempt
-    $this->auth_data = $this->authentication->user_status(0);
-
-    // Set user variables if successful login
-    if( $this->auth_data )
-        $this->_set_user_variables();
-
-    // Call the post auth hook
-    $this->post_auth_hook();
+    $user_data = $this->_getData(array('email','pass'));
+    $remember = TRUE;
+    $authenticated = FALSE;
 
     // Login attempt was successful
-    if( $this->auth_data )
+    if($this->ion_auth->login($user_data['email'], $user_data['pass'], $remember))
     {
-      $this->_respond(array(
-        'status'   => 1,
-        'user' => array(
-          'user_id'  => $this->auth_user_id,
-          'username' => $this->auth_username,
-          'email'    => $this->auth_email
-        ),
-        'message' => 'Sucessfully logged in as '.$this->auth_username,
-        'token'   => $this->tokens->token(),
-      ));
+      if ($user = $this->ion_auth->user()->row())
+      {
+        $authenticated = TRUE;
+        $this->_respond(array(
+          'status'   => 1,
+          'user' => array(
+            'user_id'  => $user->id,
+            'email'    => $user->email
+          ),
+          'message' => 'Sucessfully logged in'
+        ));
+      }
     }
 
     // Login attempt not successful
-    else
+    if (!$authenticated)
     {
-      $this->tokens->name = 'login_token';
-
-      $on_hold = (
-        $this->authentication->on_hold === TRUE OR
-        $this->authentication->current_hold_status()
-      )
-      ? 1 : 0;
-
+      $errors_string = implode(", ", $this->ion_auth->errors_array());
       $this->_respond(array(
         'status'  => 0,
-        'count'   => $this->authentication->login_errors_count,
-        'on_hold' => $on_hold,
-        'token'   => $this->tokens->token(),
-        'message' => 'Could not find that email/password combination'
+        'message' => $errors_string
       ));
     }
   }
@@ -69,30 +46,29 @@ class Sessions extends MY_Controller
   // GET /api/sessions/current
   public function current()
   {
-    $this->is_logged_in();
+    $found = FALSE;
 
-    // Logged in
-    if(!empty($this->auth_user_id))
+    if ($this->ion_auth->logged_in())
     {
-      $this->_respond(array(
-        'status'   => 1,
-        'user' => array(
-          'user_id'  => $this->auth_user_id,
-          'username' => $this->auth_username,
-          'email'    => $this->auth_email
-        ),
-        'message' => 'You are logged in as '.$this->auth_username,
-        'token' => $this->tokens->token()
-      ));
+      if ($user = $this->ion_auth->user()->row())
+      {
+        $found = TRUE;
+        $this->_respond(array(
+          'status'   => 1,
+          'user' => array(
+            'user_id'  => $user->id,
+            'email'    => $user->email
+          ),
+          'message' => 'You are logged in with email '.$user->email
+        ));
+      }
     }
 
-    // Nobody logged in
-    else
+    if (!$found)
     {
       $this->_respond(array(
         'status'  => 0,
-        'message' => "Nobody is logged in",
-        'token' => $this->tokens->token()
+        'message' => "Nobody is logged in"
       ));
     }
   }
@@ -100,22 +76,23 @@ class Sessions extends MY_Controller
   // POST /api/sessions/destroy
   public function destroy()
   {
-    $this->authentication->logout();
+    $this->ion_auth->logout();
 
     $this->_respond(array(
       'status'  => 1,
-      'message' => "Successfully logged out",
-      'token' => $this->tokens->token()
+      'message' => "Successfully logged out"
     ));
   }
 
-  // POST /api/sessions/token
-  public function token()
-  {
-    $this->_respond(array(
-      'status'  => 1,
-      'token' => $this->tokens->token()
-    ));
+  private function _getData($fields){
+    $data = array();
+
+    foreach($fields as $field){
+      if ($value = $this->input->get_post($field))
+        $data[$field] = $value;
+    }
+
+    return $data;
   }
 
   private function _respond($data){

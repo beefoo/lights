@@ -32,7 +32,8 @@ $(function(){
 
     // sign up
     '/signup': function(){
-
+      this.signup_view = this.signup_view || new SignupView(defaults);
+      this.signup_view.init();
     },
 
     // home

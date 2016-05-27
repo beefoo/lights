@@ -37,6 +37,11 @@ var HeaderView = (function() {
       _this.render();
     });
 
+    $.subscribe('users.signup.success', function(e, user, message){
+      _this.opt.user = user;
+      _this.render();
+    });
+
     $.subscribe('users.auth.success', function(e, user, message){
       _this.opt.user = user;
       _this.render();
