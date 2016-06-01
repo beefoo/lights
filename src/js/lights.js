@@ -22,7 +22,14 @@ $(function(){
 
     // forgot password
     '/forgot': function(){
+      this.forgot_view = this.forgot_view || new ForgotView(defaults);
+      this.forgot_view.init();
+    },
 
+    // reset password
+    '/reset/:code': function(code){
+      this.reset_view = this.reset_view || new ResetView(_.extend({},defaults,{code: code}));
+      this.reset_view.init();
     },
 
     // sign in

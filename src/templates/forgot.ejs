@@ -2,11 +2,10 @@
   <p>You are already logged in! <a href="#/">Return to homepage</a>.</p>
 
 <% } else { %>
-  <form class="form signin-form">
+  <form class="form forgot-form">
+    <p>Enter your email address and instructions will be sent to reset your password</p>
     <input name="email" type="text" placeholder="Email" />
-    <input name="pass" type="password" placeholder="Password" />
     <button type="submit">Submit</button>
     <div class="message"></div>
-    <p><a href="#/forgot">Forgot your password?</a></p>
   </form>
 <% } %>

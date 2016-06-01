@@ -9,6 +9,25 @@ var UserModel = (function() {
     this.getCurrentUser();
   };
 
+  UserModel.prototype.forgot = function(email){
+    var _this = this,
+        data = {email: email};
+
+    $.post(this.opt.base_url + '/users/forgot_password', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        $.publish('users.forgot.success', resp.message);
+
+      // failure
+      } else {
+        $.publish('users.forgot.failure', resp.message);
+      }
+
+    },'json');
+  };
+
   UserModel.prototype.getCurrentUser = function(){
     var _this = this;
 
@@ -29,6 +48,28 @@ var UserModel = (function() {
 
   UserModel.prototype.isLoggedIn = function(){
     return this.getUserData();
+  };
+
+  UserModel.prototype.reset = function(pass, code){
+
+    var _this = this,
+        data = {pass: pass, code: code};
+
+    $.post(this.opt.base_url + '/users/reset_password', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.reset.success', [resp.user, resp.message]);
+        $.publish('users.signin.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.reset.failure', resp.message);
+      }
+
+    },'json');
   };
 
   UserModel.prototype.signin = function(email, pass){

@@ -100,9 +100,11 @@ window.CONFIG = {
 })();
 
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% if (user) { %>  <form class="form account-form">    <label for="email">Email</label>    <input name="email" type="email" placeholder="Email" value="<%= user.email %>" />    <label for="pass">Update your password<br /><small>Leave blank if are not updating your password</small></label>    <input name="pass" type="password" placeholder="New Password" />    <label for="current_pass">Confirm your current password</label>    <input name="current_pass" type="password" placeholder="Current Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } else { %>  <p><a href="#/signin">Sign in</a> to edit your account.</p><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form forgot-form">    <p>Enter your email address and instructions will be sent to reset your password</p>    <input name="email" type="text" placeholder="Email" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<p>Main</p>';
 var UserModel = (function() {
@@ -114,6 +116,25 @@ var UserModel = (function() {
 
   UserModel.prototype.init = function(){
     this.getCurrentUser();
+  };
+
+  UserModel.prototype.forgot = function(email){
+    var _this = this,
+        data = {email: email};
+
+    $.post(this.opt.base_url + '/users/forgot_password', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        $.publish('users.forgot.success', resp.message);
+
+      // failure
+      } else {
+        $.publish('users.forgot.failure', resp.message);
+      }
+
+    },'json');
   };
 
   UserModel.prototype.getCurrentUser = function(){
@@ -136,6 +157,28 @@ var UserModel = (function() {
 
   UserModel.prototype.isLoggedIn = function(){
     return this.getUserData();
+  };
+
+  UserModel.prototype.reset = function(pass, code){
+
+    var _this = this,
+        data = {pass: pass, code: code};
+
+    $.post(this.opt.base_url + '/users/reset_password', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.reset.success', [resp.user, resp.message]);
+        $.publish('users.signin.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.reset.failure', resp.message);
+      }
+
+    },'json');
   };
 
   UserModel.prototype.signin = function(email, pass){
@@ -509,6 +552,173 @@ var AccountView = (function() {
 
 })();
 
+var ForgotView = (function() {
+  function ForgotView(options) {
+    var defaults = {
+      el: '#main',
+      id: 'forgot',
+      template: _.template(TEMPLATES['forgot.ejs'])
+    };
+    this.opt = _.extend(defaults, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+    this.opt.user = this.opt.user_model.getUserData();
+
+    this.loadListeners();
+  }
+
+  ForgotView.prototype.init = function(){
+    this.render();
+  };
+
+  ForgotView.prototype.isActive = function(){
+    return (this.$el.attr('view') == this.opt.id);
+  };
+
+  ForgotView.prototype.loadListeners = function(){
+    var _this = this;
+
+    // listen for form submission
+    this.$el.on('submit', '.forgot-form', function(e){
+      e.preventDefault();
+      var email = $(this).find('input[name="email"]').val();
+      _this.submit(email);
+    });
+
+    // listen for user update success
+    $.subscribe('users.forgot.success', function(e, message){
+      _this.onSuccess(message);
+    });
+
+    // listen for user update failure
+    $.subscribe('users.forgot.failure', function(e, message){
+      _this.onFailure(message);
+    });
+
+    // listen for auth success
+    $.subscribe('users.auth.success', function(e, user, message){
+      _this.onAuth(user, message);
+    });
+
+    // listen for sign out
+    $.subscribe('users.signout', function(e, message){
+      _this.onSignout(message);
+    });
+  };
+
+  ForgotView.prototype.onAuth = function(user, message){
+    this.opt.user = user;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  ForgotView.prototype.onFailure = function(message){
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+  };
+
+  ForgotView.prototype.onSignout = function(message){
+    this.opt.user = false;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  ForgotView.prototype.onSuccess = function(message){
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+  };
+
+  ForgotView.prototype.render = function(){
+    this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+  };
+
+  ForgotView.prototype.submit = function(email, pass, current_pass){
+    this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
+    this.opt.user_model.forgot(email);
+  };
+
+  return ForgotView;
+
+})();
+
+var ResetView = (function() {
+  function ResetView(options) {
+    var defaults = {
+      el: '#main',
+      id: 'reset',
+      template: _.template(TEMPLATES['reset.ejs'])
+    };
+    this.opt = _.extend(defaults, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+
+    this.loadListeners();
+  }
+
+  ResetView.prototype.init = function(){
+    this.render();
+  };
+
+  ResetView.prototype.isActive = function(){
+    return (this.$el.attr('view') == this.opt.id);
+  };
+
+  ResetView.prototype.loadListeners = function(){
+    var _this = this;
+
+    // listen for form submission
+    this.$el.on('submit', '.reset-form', function(e){
+      e.preventDefault();
+      var pass = $(this).find('input[name="pass"]').val();
+      _this.submit(pass);
+    });
+
+    // listen for user reset success
+    $.subscribe('users.reset.success', function(e, user, message){
+      _this.onSuccess(user, message);
+    });
+
+    // listen for user reset failure
+    $.subscribe('users.reset.failure', function(e, message){
+      _this.onFailure(message);
+    });
+  };
+
+  ResetView.prototype.onFailure = function(message){
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+  };
+
+  ResetView.prototype.onSignout = function(message){
+    this.opt.user = false;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  ResetView.prototype.onSuccess = function(user, message){
+    this.opt.user = user;
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+    setTimeout(function(){
+      window.location.hash = '/';
+    }, 2000);
+  };
+
+  ResetView.prototype.render = function(){
+    this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+  };
+
+  ResetView.prototype.submit = function(pass){
+    this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
+    this.opt.user_model.reset(pass, this.opt.code);
+  };
+
+  return ResetView;
+
+})();
 
 var SignupView = (function() {
   function SignupView(options) {
@@ -620,7 +830,14 @@ $(function(){
 
     // forgot password
     '/forgot': function(){
+      this.forgot_view = this.forgot_view || new ForgotView(defaults);
+      this.forgot_view.init();
+    },
 
+    // reset password
+    '/reset/:code': function(code){
+      this.reset_view = this.reset_view || new ResetView(_.extend({},defaults,{code: code}));
+      this.reset_view.init();
     },
 
     // sign in

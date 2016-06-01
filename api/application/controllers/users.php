@@ -86,11 +86,21 @@ class Users extends CI_Controller
     {
       if ($this->ion_auth->update($user->id, array('password' => $user_data["pass"])))
       {
-        $messages_string = implode(", ", $this->ion_auth->messages_array());
-        $this->_respond(array(
-          'status'  => 1,
-          'message' => $messages_string
-        ));
+        $remember = TRUE;
+        // authenticate user
+        if($this->ion_auth->login($user->email, $user_data['pass'], $remember))
+        {
+          $reset = TRUE;
+          $messages_string = implode(", ", $this->ion_auth->messages_array());
+          $this->_respond(array(
+            'status'  => 1,
+            'user' => array(
+              'user_id'  => $user->id,
+              'email'    => $user->email
+            ),
+            'message' => $messages_string
+          ));
+        }
       }
     }
 
