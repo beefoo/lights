@@ -1,0 +1,15 @@
+<% if (user) { %>
+  <form class="form account-form">
+    <label for="email">Email</label>
+    <input name="email" type="email" placeholder="Email" value="<%= user.email %>" />
+    <label for="pass">Update your password<br /><small>Leave blank if are not updating your password</small></label>
+    <input name="pass" type="password" placeholder="New Password" />
+    <label for="current_pass">Confirm your current password</label>
+    <input name="current_pass" type="password" placeholder="Current Password" />
+    <button type="submit">Submit</button>
+    <div class="message"></div>
+  </form>
+
+<% } else { %>
+  <p><a href="#/signin">Sign in</a> to edit your account.</p>
+<% } %>

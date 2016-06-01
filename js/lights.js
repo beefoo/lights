@@ -99,7 +99,8 @@ window.CONFIG = {
 
 })();
 
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% if (user) { %>  <form class="form account-form">    <label for="email">Email</label>    <input name="email" type="email" placeholder="Email" value="<%= user.email %>" />    <label for="pass">Update your password<br /><small>Leave blank if are not updating your password</small></label>    <input name="pass" type="password" placeholder="New Password" />    <label for="current_pass">Confirm your current password</label>    <input name="current_pass" type="password" placeholder="Current Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } else { %>  <p><a href="#/signin">Sign in</a> to edit your account.</p><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
@@ -186,6 +187,26 @@ var UserModel = (function() {
       // failure
       } else {
         $.publish('users.signup.failure', resp.message);
+      }
+
+    },'json');
+  };
+
+  UserModel.prototype.update = function(email, pass, current_pass){
+    var _this = this,
+        data = {email: email, pass: pass, current_pass: current_pass};
+
+    $.post(this.opt.base_url + '/users/update', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.update.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.update.failure', resp.message);
       }
 
     },'json');
@@ -387,6 +408,106 @@ var SpaceView = (function() {
 
 })();
 
+var AccountView = (function() {
+  function AccountView(options) {
+    var defaults = {
+      el: '#main',
+      id: 'account',
+      template: _.template(TEMPLATES['account.ejs'])
+    };
+    this.opt = _.extend(defaults, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+    this.opt.user = this.opt.user_model.getUserData();
+
+    this.loadListeners();
+  }
+
+  AccountView.prototype.init = function(){
+    this.render();
+  };
+
+  AccountView.prototype.isActive = function(){
+    return (this.$el.attr('view') == this.opt.id);
+  };
+
+  AccountView.prototype.loadListeners = function(){
+    var _this = this;
+
+    // listen for form submission
+    this.$el.on('submit', '.account-form', function(e){
+      e.preventDefault();
+      var email = $(this).find('input[name="email"]').val();
+      var pass = $(this).find('input[name="pass"]').val();
+      var current_pass = $(this).find('input[name="current_pass"]').val();
+      _this.submit(email, pass, current_pass);
+    });
+
+    // listen for user update success
+    $.subscribe('users.update.success', function(e, user, message){
+      _this.onSuccess(user, message);
+    });
+
+    // listen for user update failure
+    $.subscribe('users.update.failure', function(e, message){
+      _this.onFailure(message);
+    });
+
+    // listen for auth success
+    $.subscribe('users.auth.success', function(e, user, message){
+      _this.onAuth(user, message);
+    });
+    $.subscribe('users.signin.success', function(e, user, message){
+      _this.onAuth(user, message);
+    });
+    $.subscribe('users.signup.success', function(e, user, message){
+      _this.onAuth(user, message);
+    });
+
+    // listen for sign out
+    $.subscribe('users.signout', function(e, message){
+      _this.onSignout(message);
+    });
+  };
+
+  AccountView.prototype.onAuth = function(user, message){
+    this.opt.user = user;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  AccountView.prototype.onFailure = function(message){
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+  };
+
+  AccountView.prototype.onSignout = function(message){
+    this.opt.user = false;
+    if (this.isActive()) {
+      this.render();
+    }
+  };
+
+  AccountView.prototype.onSuccess = function(user, message){
+    this.opt.user = user;
+    this.$el.find('.message').html(message).addClass('active');
+    this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
+    this.$el.find('[type="password"]').val('');
+  };
+
+  AccountView.prototype.render = function(){
+    this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+  };
+
+  AccountView.prototype.submit = function(email, pass, current_pass){
+    this.$el.find('[type="submit"]').prop('disabled', true).text('Submitting...');
+    this.opt.user_model.update(email, pass, current_pass);
+  };
+
+  return AccountView;
+
+})();
 
 
 var SignupView = (function() {
@@ -493,7 +614,8 @@ $(function(){
   var routes = {
     // account
     '/account': function(){
-
+      this.account_view = this.account_view || new AccountView(defaults);
+      this.account_view.init();
     },
 
     // forgot password

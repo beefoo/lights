@@ -111,6 +111,7 @@ class Users extends CI_Controller
     $updated = FALSE;
     if ($user = $this->ion_auth->user()->row())
     {
+      $remember = TRUE;
       // authenticate current_pass
       if($this->ion_auth->login($user->email, $user_data['current_pass'], $remember))
       {
@@ -150,8 +151,7 @@ class Users extends CI_Controller
     $data = array();
 
     foreach($fields as $field){
-      if ($value = $this->input->get_post($field))
-        $data[$field] = $value;
+      $data[$field] = $this->input->get_post($field);
     }
 
     return $data;

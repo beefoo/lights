@@ -16,7 +16,8 @@ $(function(){
   var routes = {
     // account
     '/account': function(){
-
+      this.account_view = this.account_view || new AccountView(defaults);
+      this.account_view.init();
     },
 
     // forgot password

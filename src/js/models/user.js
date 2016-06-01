@@ -85,6 +85,26 @@ var UserModel = (function() {
     },'json');
   };
 
+  UserModel.prototype.update = function(email, pass, current_pass){
+    var _this = this,
+        data = {email: email, pass: pass, current_pass: current_pass};
+
+    $.post(this.opt.base_url + '/users/update', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('users.update.success', [resp.user, resp.message]);
+
+      // failure
+      } else {
+        $.publish('users.update.failure', resp.message);
+      }
+
+    },'json');
+  };
+
   return UserModel;
 
 })();
