@@ -5,7 +5,7 @@ class Spaces_model extends CI_Model {
   }
 
   function accessibleFields(){
-    return array("uid", "data");
+    return array("data");
   }
 
   function getEntryByUid($uid){
@@ -14,8 +14,16 @@ class Spaces_model extends CI_Model {
     return (count($result) > 0) ? parseEntry($result[0]) : FALSE;
   }
 
+  function getEntryByUserId($user_id){
+    $query = $this->db->get_where('spaces', array('user_id' => $user_id), 1);
+    $result = $query->result();
+    return (count($result) > 0) ? parseEntry($result[0]) : FALSE;
+  }
+
   function insertEntry($data) {
     $data['date_created'] = time();
+    $data['uid'] = random_string('alnum', 16);
+    $data['token'] = random_string('alnum', 60);
     $this->db->insert('spaces', $data);
   }
 

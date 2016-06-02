@@ -7,6 +7,7 @@ class Users extends CI_Controller
   {
     parent::__construct();
 
+    $this->load->model('spaces_model');
     $this->ion_auth->set_error_delimiters('','');
     $this->ion_auth->set_message_delimiters('','');
   }
@@ -21,6 +22,11 @@ class Users extends CI_Controller
     // Attempt registration
     if ($user_id = $this->ion_auth->register($user_data['email'], $user_data['pass'], $user_data['email']))
     {
+      // Create a new space for user
+      $this->spaces_model->insertEntry(array(
+        'user_id' => $user_id,
+        'data' => '{}'
+      ));
       // Now attempt auto-login
       $remember = TRUE;
       if($this->ion_auth->login($user_data['email'], $user_data['pass'], $remember))
