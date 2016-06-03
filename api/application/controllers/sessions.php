@@ -7,6 +7,7 @@ class Sessions extends CI_Controller
   {
     parent::__construct();
 
+    $this->load->model('spaces_model');
     $this->ion_auth->set_error_delimiters('','');
     $this->ion_auth->set_message_delimiters('','');
   }
@@ -28,7 +29,8 @@ class Sessions extends CI_Controller
           'status'   => 1,
           'user' => array(
             'user_id'  => $user->id,
-            'email'    => $user->email
+            'email'    => $user->email,
+            'space'    => $this->spaces_model->getEntryByUserId($user->id)
           ),
           'message' => 'Sucessfully logged in'
         ));
@@ -60,7 +62,8 @@ class Sessions extends CI_Controller
           'status'   => 1,
           'user' => array(
             'user_id'  => $user->id,
-            'email'    => $user->email
+            'email'    => $user->email,
+            'space'    => $this->spaces_model->getEntryByUserId($user->id)
           ),
           'message' => 'You are logged in with email '.$user->email
         ));

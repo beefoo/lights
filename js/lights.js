@@ -106,11 +106,183 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>L
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<p>Main</p>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<% if (!space) { %>  <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p><% } else if (space.relationships.length > 0) { %>  <% _.each(space.relationships, function(r){ %>    <p><%= r.name %></p>  <% }) %><% } else { %>  <p>No relationships yet. <a href="#/relationships/add">Add one</a>.</p><% } %>';
+var MeetingModel = (function() {
+  function MeetingModel(props) {
+    var defaults = this.defaultProps();
+    this.props = _.extend(defaults, props);
+    this.init();
+  }
+
+  MeetingModel.prototype.init = function(){};
+
+  MeetingModel.prototype.defaultProps = function(){
+    return {
+      id: 0,
+      relationship_id: 0,
+      date: '',
+      notes: ''
+    };
+  };
+
+  MeetingModel.prototype.fields = function(){
+    var defaults = this.defaultProps();
+    return _.keys(defaults);
+  };
+
+  MeetingModel.prototype.toJSON = function(){
+    return _.clone(this.props);
+  };
+
+  return MeetingModel;
+
+})();
+
+var RelationshipModel = (function() {
+  function RelationshipModel(props) {
+    var defaults = this.defaultProps();
+    this.props = _.extend(defaults, props);
+    this.init();
+  }
+
+  RelationshipModel.prototype.init = function(){};
+
+  RelationshipModel.prototype.defaultProps = function(){
+    return {
+      id: 0,
+      name: 'Unknown',
+      method: 'in_person',
+      rhythm: 2,
+      unit: 'month',
+      notes: '',
+      last_meeting_at: ''
+    };
+  };
+
+  RelationshipModel.prototype.fields = function(){
+    var defaults = this.defaultProps();
+    return _.keys(defaults);
+  };
+
+  RelationshipModel.prototype.toJSON = function(){
+    return _.clone(this.props);
+  };
+
+  return RelationshipModel;
+
+})();
+
+var SpaceModel = (function() {
+  function SpaceModel(props) {
+    var defaults = this.defaultProps();
+    this.props = _.extend(defaults, props);
+    this.init();
+  }
+
+  SpaceModel.prototype.init = function(){
+    this.parseData(this.props.data);
+  };
+
+  SpaceModel.prototype.defaultProps = function(){
+    return {
+      data: {},
+      relationships: [],
+      meetings: []
+    }
+  };
+
+  SpaceModel.prototype.parseData = function(data){
+    var f;
+    data = data || {};
+
+    // retrieve relationships
+    if (data.relationships) {
+      f = data.relationships.fields;
+      this.props.relationships = _.map(data.relationships.data, function(d){
+        var props = _.object(f, d);
+        return new RelationshipModel(props);
+      });
+    }
+
+    // Retrieve meetings
+    if (data.meetings) {
+      f = data.meetings.fields;
+      this.props.meetings = _.map(data.meetings.data, function(d){
+        var props = _.object(f, d);
+        return new MeetingModel(props);
+      });
+    }
+  };
+
+  SpaceModel.prototype.save = function(){
+    var _this = this,
+        data = {data: this.toString()};
+
+    $.post(this.props.base_url + '/spaces/save', data, function(resp){
+      console.log(resp);
+
+      // success
+      if (resp.status) {
+        _this.userData = resp.user;
+        $.publish('spaces.save.success', resp.message);
+
+      // failure
+      } else {
+        $.publish('spaces.save.failure', resp.message);
+      }
+
+    },'json');
+  };
+
+  SpaceModel.prototype.toJSON = function(){
+    return {
+      relationships: _.map(this.props.relationships, function(r){ return r.toJSON(); }),
+      meetings: _.map(this.props.meetings, function(r){ return r.toJSON(); }),
+    };
+  };
+
+  SpaceModel.prototype.toString = function(){
+    // retrieve data fields
+    var relationship_model = new RelationshipModel();
+    var meeting_model = new MeetingModel();
+    var relationship_fields = relationship_model.fields();
+    var meeting_fields = meeting_model.fields();
+
+    // make the data tinier by separating out fields
+    var data = {
+      relationships: {
+        fields: relationship_fields,
+        data: this._collectionToArray(this.relationships, relationship_fields)
+      },
+      meetings: {
+        fields: meeting_fields,
+        data: this._collectionToArray(this.meetings, meeting_fields)
+      }
+    };
+
+    // stringify
+    return JSON.stringify(data);
+  };
+
+  SpaceModel.prototype._collectionToArray = function(collection, fields){
+    return _.map(collection, function(item){
+      var arr = [];
+      var obj = item.toJSON();
+      _.each(fields, function(f){
+        arr.push(obj[f]);
+      })
+      return arr;
+    });
+  };
+
+  return SpaceModel;
+
+})();
+
 var UserModel = (function() {
-  function UserModel(options) {
+  function UserModel(props) {
     var defaults = {};
-    this.opt = _.extend(defaults, options);
+    this.props = _.extend(defaults, props);
     this.init();
   }
 
@@ -122,7 +294,7 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email};
 
-    $.post(this.opt.base_url + '/users/forgot_password', data, function(resp){
+    $.post(this.props.base_url + '/users/forgot_password', data, function(resp){
       console.log(resp);
 
       // success
@@ -140,13 +312,14 @@ var UserModel = (function() {
   UserModel.prototype.getCurrentUser = function(){
     var _this = this;
 
-    $.getJSON(this.opt.base_url + '/sessions/current', function(resp) {
+    $.getJSON(this.props.base_url + '/sessions/current', function(resp) {
       console.log(resp);
 
       // user is logged in
       if (resp.status && resp.user) {
         _this.userData = resp.user;
         $.publish('users.auth.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
       }
     });
   };
@@ -164,14 +337,14 @@ var UserModel = (function() {
     var _this = this,
         data = {pass: pass, code: code};
 
-    $.post(this.opt.base_url + '/users/reset_password', data, function(resp){
+    $.post(this.props.base_url + '/users/reset_password', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.reset.success', [resp.user, resp.message]);
-        $.publish('users.signin.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -186,13 +359,14 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass};
 
-    $.post(this.opt.base_url + '/sessions/create', data, function(resp){
+    $.post(this.props.base_url + '/sessions/create', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.signin.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -205,7 +379,7 @@ var UserModel = (function() {
   UserModel.prototype.signout = function(){
     var _this = this;
 
-    $.post(this.opt.base_url + '/sessions/destroy', {}, function(resp){
+    $.post(this.props.base_url + '/sessions/destroy', {}, function(resp){
       console.log(resp);
 
       _this.userData = false;
@@ -219,13 +393,14 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass};
 
-    $.post(this.opt.base_url + '/users/create', data, function(resp){
+    $.post(this.props.base_url + '/users/create', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.signup.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -239,7 +414,7 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass, current_pass: current_pass};
 
-    $.post(this.opt.base_url + '/users/update', data, function(resp){
+    $.post(this.props.base_url + '/users/update', data, function(resp){
       console.log(resp);
 
       // success
@@ -291,19 +466,9 @@ var HeaderView = (function() {
     this.$el.on('click', '.sign-out-link', function(e){
       e.preventDefault();
       _this.opt.user_model.signout();
-    })
-
-    $.subscribe('users.signin.success', function(e, user, message){
-      _this.opt.user = user;
-      _this.render();
     });
 
-    $.subscribe('users.signup.success', function(e, user, message){
-      _this.opt.user = user;
-      _this.render();
-    });
-
-    $.subscribe('users.auth.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user){
       _this.opt.user = user;
       _this.render();
     });
@@ -424,7 +589,8 @@ var SpaceView = (function() {
     var defaults = {
       el: '#main',
       id: 'space',
-      template: _.template(TEMPLATES['space.ejs'])
+      template: _.template(TEMPLATES['space.ejs']),
+      space: false
     };
     this.opt = _.extend(defaults, options);
   }
@@ -440,10 +606,31 @@ var SpaceView = (function() {
   SpaceView.prototype.loadListeners = function(){
     var _this = this;
 
-    
+    $.subscribe('users.refresh', function(e, user, message){
+      _this.opt.user = user;
+      _this.render();
+    });
+
+    $.subscribe('users.signup.success', function(e, user, message){
+      _this.opt.user = user;
+      _this.render();
+    });
+
+    $.subscribe('users.signout', function(e, message){
+      _this.opt.user = false;
+      _this.render();
+    });
+  };
+
+  SpaceView.prototype.loadSpace = function(){
+    if (!this.opt.user) return false;
+    var props = this.opt.user.space || {};
+    var space = new SpaceModel(props);
+    return space.toJSON();
   };
 
   SpaceView.prototype.render = function(){
+    this.opt.space = this.loadSpace();
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
   };
 
@@ -497,13 +684,7 @@ var AccountView = (function() {
     });
 
     // listen for auth success
-    $.subscribe('users.auth.success', function(e, user, message){
-      _this.onAuth(user, message);
-    });
-    $.subscribe('users.signin.success', function(e, user, message){
-      _this.onAuth(user, message);
-    });
-    $.subscribe('users.signup.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user, message){
       _this.onAuth(user, message);
     });
 
@@ -596,7 +777,7 @@ var ForgotView = (function() {
     });
 
     // listen for auth success
-    $.subscribe('users.auth.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user, message){
       _this.onAuth(user, message);
     });
 

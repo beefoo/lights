@@ -11,13 +11,13 @@ class Spaces_model extends CI_Model {
   function getEntryByUid($uid){
     $query = $this->db->get_where('spaces', array('uid' => $uid), 1);
     $result = $query->result();
-    return (count($result) > 0) ? parseEntry($result[0]) : FALSE;
+    return (count($result) > 0) ? $this->parseEntry($result[0]) : FALSE;
   }
 
   function getEntryByUserId($user_id){
     $query = $this->db->get_where('spaces', array('user_id' => $user_id), 1);
     $result = $query->result();
-    return (count($result) > 0) ? parseEntry($result[0]) : FALSE;
+    return (count($result) > 0) ? $this->parseEntry($result[0]) : FALSE;
   }
 
   function insertEntry($data) {
@@ -25,6 +25,8 @@ class Spaces_model extends CI_Model {
     $data['uid'] = random_string('alnum', 16);
     $data['token'] = random_string('alnum', 60);
     $this->db->insert('spaces', $data);
+    $data['data'] = json_decode($data['data']);
+    return $data;
   }
 
   function parseEntry($entry) {

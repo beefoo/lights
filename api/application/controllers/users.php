@@ -23,7 +23,7 @@ class Users extends CI_Controller
     if ($user_id = $this->ion_auth->register($user_data['email'], $user_data['pass'], $user_data['email']))
     {
       // Create a new space for user
-      $this->spaces_model->insertEntry(array(
+      $space = $this->spaces_model->insertEntry(array(
         'user_id' => $user_id,
         'data' => '{}'
       ));
@@ -38,7 +38,8 @@ class Users extends CI_Controller
             'status'   => 1,
             'user' => array(
               'user_id'  => $user->id,
-              'email'    => $user->email
+              'email'    => $user->email,
+              'space'    => $space
             ),
             'message' => 'Registration successful'
           ));
@@ -102,7 +103,9 @@ class Users extends CI_Controller
             'status'  => 1,
             'user' => array(
               'user_id'  => $user->id,
-              'email'    => $user->email
+              'email'    => $user->email,
+              'space'    => $this->spaces_model->getEntryByUserId($user->id)
+
             ),
             'message' => $messages_string
           ));
@@ -143,7 +146,8 @@ class Users extends CI_Controller
             'status'  => 1,
             'user' => array(
               'user_id'  => $user->id,
-              'email'    => $user_data['email']
+              'email'    => $user_data['email'],
+              'space'    => $this->spaces_model->getEntryByUserId($user->id)
             ),
             'message' => 'Successfully updated user account'
           ));

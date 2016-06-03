@@ -30,19 +30,9 @@ var HeaderView = (function() {
     this.$el.on('click', '.sign-out-link', function(e){
       e.preventDefault();
       _this.opt.user_model.signout();
-    })
-
-    $.subscribe('users.signin.success', function(e, user, message){
-      _this.opt.user = user;
-      _this.render();
     });
 
-    $.subscribe('users.signup.success', function(e, user, message){
-      _this.opt.user = user;
-      _this.render();
-    });
-
-    $.subscribe('users.auth.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user){
       _this.opt.user = user;
       _this.render();
     });

@@ -1,7 +1,7 @@
 var UserModel = (function() {
-  function UserModel(options) {
+  function UserModel(props) {
     var defaults = {};
-    this.opt = _.extend(defaults, options);
+    this.props = _.extend(defaults, props);
     this.init();
   }
 
@@ -13,7 +13,7 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email};
 
-    $.post(this.opt.base_url + '/users/forgot_password', data, function(resp){
+    $.post(this.props.base_url + '/users/forgot_password', data, function(resp){
       console.log(resp);
 
       // success
@@ -31,13 +31,14 @@ var UserModel = (function() {
   UserModel.prototype.getCurrentUser = function(){
     var _this = this;
 
-    $.getJSON(this.opt.base_url + '/sessions/current', function(resp) {
+    $.getJSON(this.props.base_url + '/sessions/current', function(resp) {
       console.log(resp);
 
       // user is logged in
       if (resp.status && resp.user) {
         _this.userData = resp.user;
         $.publish('users.auth.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
       }
     });
   };
@@ -55,14 +56,14 @@ var UserModel = (function() {
     var _this = this,
         data = {pass: pass, code: code};
 
-    $.post(this.opt.base_url + '/users/reset_password', data, function(resp){
+    $.post(this.props.base_url + '/users/reset_password', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.reset.success', [resp.user, resp.message]);
-        $.publish('users.signin.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -77,13 +78,14 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass};
 
-    $.post(this.opt.base_url + '/sessions/create', data, function(resp){
+    $.post(this.props.base_url + '/sessions/create', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.signin.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -96,7 +98,7 @@ var UserModel = (function() {
   UserModel.prototype.signout = function(){
     var _this = this;
 
-    $.post(this.opt.base_url + '/sessions/destroy', {}, function(resp){
+    $.post(this.props.base_url + '/sessions/destroy', {}, function(resp){
       console.log(resp);
 
       _this.userData = false;
@@ -110,13 +112,14 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass};
 
-    $.post(this.opt.base_url + '/users/create', data, function(resp){
+    $.post(this.props.base_url + '/users/create', data, function(resp){
       console.log(resp);
 
       // success
       if (resp.status) {
         _this.userData = resp.user;
         $.publish('users.signup.success', [resp.user, resp.message]);
+        $.publish('users.refresh', resp.user);
 
       // failure
       } else {
@@ -130,7 +133,7 @@ var UserModel = (function() {
     var _this = this,
         data = {email: email, pass: pass, current_pass: current_pass};
 
-    $.post(this.opt.base_url + '/users/update', data, function(resp){
+    $.post(this.props.base_url + '/users/update', data, function(resp){
       console.log(resp);
 
       // success

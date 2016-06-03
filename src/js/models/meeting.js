@@ -1,16 +1,29 @@
 var MeetingModel = (function() {
-  function MeetingModel(options) {
-    var defaults = {
+  function MeetingModel(props) {
+    var defaults = this.defaultProps();
+    this.props = _.extend(defaults, props);
+    this.init();
+  }
+
+  MeetingModel.prototype.init = function(){};
+
+  MeetingModel.prototype.defaultProps = function(){
+    return {
       id: 0,
       relationship_id: 0,
       date: '',
       notes: ''
     };
-    this.opt = _.extend(defaults, options);
-    this.init();
-  }
+  };
 
-  MeetingModel.prototype.init = function(){};
+  MeetingModel.prototype.fields = function(){
+    var defaults = this.defaultProps();
+    return _.keys(defaults);
+  };
+
+  MeetingModel.prototype.toJSON = function(){
+    return _.clone(this.props);
+  };
 
   return MeetingModel;
 

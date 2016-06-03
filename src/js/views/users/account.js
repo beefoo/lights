@@ -44,13 +44,7 @@ var AccountView = (function() {
     });
 
     // listen for auth success
-    $.subscribe('users.auth.success', function(e, user, message){
-      _this.onAuth(user, message);
-    });
-    $.subscribe('users.signin.success', function(e, user, message){
-      _this.onAuth(user, message);
-    });
-    $.subscribe('users.signup.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user, message){
       _this.onAuth(user, message);
     });
 

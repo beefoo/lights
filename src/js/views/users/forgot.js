@@ -42,7 +42,7 @@ var ForgotView = (function() {
     });
 
     // listen for auth success
-    $.subscribe('users.auth.success', function(e, user, message){
+    $.subscribe('users.refresh', function(e, user, message){
       _this.onAuth(user, message);
     });
 

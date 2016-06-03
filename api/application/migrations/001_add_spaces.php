@@ -7,7 +7,7 @@ class Migration_Add_spaces extends CI_Migration {
       'uid' => array('type' => 'VARCHAR','constraint' => 40, 'null' => FALSE),
       'token' => array('type' => 'VARCHAR','constraint' => 60, 'null' => FALSE),
       'user_id' => array('type' => 'INT', 'constraint' => 10, 'unsigned' => TRUE),
-      'data' => array('type' => 'TEXT'),
+      'data' => array('type' => 'MEDIUMTEXT'),
       'date_created' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE),
       'date_modified' => array('type' => 'INT', 'unsigned' => TRUE, 'constraint' => 10, 'null' => FALSE)
     ));
