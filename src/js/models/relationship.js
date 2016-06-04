@@ -5,15 +5,18 @@ var RelationshipModel = (function() {
     this.init();
   }
 
-  RelationshipModel.prototype.init = function(){};
+  RelationshipModel.prototype.init = function(){
+    if (!this.props.id) {
+      this.props.id = UTIL.makeId(16);
+    }
+  };
 
   RelationshipModel.prototype.defaultProps = function(){
     return {
       id: 0,
       name: 'Unknown',
       method: 'in_person',
-      rhythm: 2,
-      unit: 'month',
+      rhythm: 'week_1',
       notes: '',
       last_meeting_at: ''
     };
@@ -24,8 +27,21 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
+  RelationshipModel.prototype.id = function(){
+    return this.props.id;
+  };
+
   RelationshipModel.prototype.toJSON = function(){
     return _.clone(this.props);
+  };
+
+  RelationshipModel.prototype.update = function(data){
+    var _this = this,
+        fields = this.fields();
+
+    _.each(fields, function(f){
+      if (data[f]) _this.props[f] = data[f];
+    });
   };
 
   return RelationshipModel;

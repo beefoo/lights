@@ -1,17 +1,9 @@
-<% if (!space) { %>
-
+<div class="intro <%= !space ? 'active' : '' %>">
   <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p>
+</div>
 
-<% } else if (space.relationships.length > 0) { %>
-
-  <% _.each(space.relationships, function(r){ %>
-
-    <p><%= r.name %></p>
-
-  <% }) %>
-
-<% } else { %>
-
+<div class="empty <%= space && !space.relationships.length ? 'active' : '' %>">
   <p>No relationships yet. <a href="#/relationships/add">Add one</a>.</p>
+</div>
 
-<% } %>
+<div class="relationships-wrapper"></div>

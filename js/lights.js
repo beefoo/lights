@@ -25,6 +25,23 @@ window.CONFIG = {
   base_url: '/api'
 };
 
+$.fn.serializeObject = function()
+{
+  var o = {};
+  var a = this.serializeArray();
+  $.each(a, function() {
+    if (o[this.name] !== undefined) {
+      if (!o[this.name].push) {
+        o[this.name] = [o[this.name]];
+      }
+      o[this.name].push(this.value || '');
+    } else {
+      o[this.name] = this.value || '';
+    }
+  });
+  return o;
+};
+
 // Utility functions
 (function() {
   window.UTIL = {};
@@ -103,10 +120,12 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% i
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form forgot-form">    <p>Enter your email address and instructions will be sent to reset your password</p>    <input name="email" type="text" placeholder="Email" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="name"><%= relationship ? relationship.name : \'\' %></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<div class="modal">  <form class="relationship-form">    <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>    <label for="name">Name</label>    <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />    <label for="method">Contact Method</label>    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m[\'value\'] %>" <%= relationship && relationship.method==m[\'value\'] ? \'selected\' : \'\' %>><%= m[\'label\'] %></option>      <% }) %>    </select>    <label for="rhythm">Rhythm</label>    <select name="rhythm">      <% _.each(rhythms, function(r){ %>        <option value="<%= r[\'value\'] %>" <%= relationship && relationship.rhythm==r[\'value\'] ? \'selected\' : \'\' %>><%= r[\'label\'] %></option>      <% }) %>    </select>    <input name="id" type="hidden" value="<%= relationship ? relationship.id : \'\' %>" />    <button type="submit">Submit</button>  </form></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<% if (!space) { %>  <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p><% } else if (space.relationships.length > 0) { %>  <% _.each(space.relationships, function(r){ %>    <p><%= r.name %></p>  <% }) %><% } else { %>  <p>No relationships yet. <a href="#/relationships/add">Add one</a>.</p><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<div class="intro <%= !space ? \'active\' : \'\' %>">  <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p></div><div class="empty <%= space && !space.relationships.length ? \'active\' : \'\' %>">  <p>No relationships yet. <a href="#/relationships/add">Add one</a>.</p></div><div class="relationships-wrapper"></div>';
 var MeetingModel = (function() {
   function MeetingModel(props) {
     var defaults = this.defaultProps();
@@ -145,15 +164,18 @@ var RelationshipModel = (function() {
     this.init();
   }
 
-  RelationshipModel.prototype.init = function(){};
+  RelationshipModel.prototype.init = function(){
+    if (!this.props.id) {
+      this.props.id = UTIL.makeId(16);
+    }
+  };
 
   RelationshipModel.prototype.defaultProps = function(){
     return {
       id: 0,
       name: 'Unknown',
       method: 'in_person',
-      rhythm: 2,
-      unit: 'month',
+      rhythm: 'week_1',
       notes: '',
       last_meeting_at: ''
     };
@@ -164,8 +186,21 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
+  RelationshipModel.prototype.id = function(){
+    return this.props.id;
+  };
+
   RelationshipModel.prototype.toJSON = function(){
     return _.clone(this.props);
+  };
+
+  RelationshipModel.prototype.update = function(data){
+    var _this = this,
+        fields = this.fields();
+
+    _.each(fields, function(f){
+      if (data[f]) _this.props[f] = data[f];
+    });
   };
 
   return RelationshipModel;
@@ -181,6 +216,13 @@ var SpaceModel = (function() {
 
   SpaceModel.prototype.init = function(){
     this.parseData(this.props.data);
+  };
+
+  SpaceModel.prototype.addRelationship = function(data){
+    var relationship = new RelationshipModel(data);
+    this.props.relationships.push(relationship);
+    this.save();
+    return relationship;
   };
 
   SpaceModel.prototype.defaultProps = function(){
@@ -218,7 +260,7 @@ var SpaceModel = (function() {
     var _this = this,
         data = {data: this.toString()};
 
-    $.post(this.props.base_url + '/spaces/save', data, function(resp){
+    $.post(CONFIG.base_url + '/spaces/save', data, function(resp){
       console.log(resp);
 
       // success
@@ -252,16 +294,22 @@ var SpaceModel = (function() {
     var data = {
       relationships: {
         fields: relationship_fields,
-        data: this._collectionToArray(this.relationships, relationship_fields)
+        data: this._collectionToArray(this.props.relationships, relationship_fields)
       },
       meetings: {
         fields: meeting_fields,
-        data: this._collectionToArray(this.meetings, meeting_fields)
+        data: this._collectionToArray(this.props.meetings, meeting_fields)
       }
     };
 
     // stringify
     return JSON.stringify(data);
+  };
+
+  SpaceModel.prototype.updateRelationship = function(id, data){
+    var r = _.find(this.props.relationships, function(r){ return r.id()==id; });
+    if (r) r.update(data);
+    this.save();
   };
 
   SpaceModel.prototype._collectionToArray = function(collection, fields){
@@ -488,6 +536,126 @@ var HeaderView = (function() {
 
 })();
 
+var RelationshipFormView = (function() {
+  function RelationshipFormView(options) {
+    var defaults = {
+      el: '#modal-container',
+      id: 'relationship-add',
+      template: _.template(TEMPLATES['relationship_form.ejs']),
+      methods: [
+        {value: 'in_person', label: 'In Person'},
+        {value: 'call', label: 'Phone / Video'},
+        {value: 'text', label: 'Text / Chat'},
+        {value: 'mail', label: 'Snail Mail'}
+      ],
+      rhythms: [
+        {value: 'week_1', label: 'Week'},
+        {value: 'week_2', label: '2 Weeks'},
+        {value: 'month_1', label: 'Month'},
+        {value: 'month_2', label: '2 Months'},
+        {value: 'month_3', label: '3 Months'},
+        {value: 'month_6', label: '6 Months'},
+        {value: 'year_1', label: 'Year'}
+      ],
+      relationship: false
+    };
+    this.opt = _.extend(defaults, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+  }
+
+  RelationshipFormView.prototype.init = function(){
+    this.render();
+    this.loadListeners();
+  };
+
+  RelationshipFormView.prototype.close = function(){
+    this.$el.off('submit', '.relationship-form');
+    this.$el.html('').attr('view', '');
+  };
+
+  RelationshipFormView.prototype.loadListeners = function(){
+    var _this = this;
+
+    this.$el.on('submit', '.relationship-form', function(e){
+      e.preventDefault();
+
+      var data = $(this).serializeObject();
+      _this.submit(data);
+    });
+  };
+
+  RelationshipFormView.prototype.render = function(){
+    this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+  };
+
+  RelationshipFormView.prototype.submit = function(data){
+    if (this.opt.relationship && data.id.length){
+      $.publish('relationship.update', data);
+    } else {
+      $.publish('relationship.create', data);
+    }
+
+    this.opt.relationship = data;
+    this.close();
+  };
+
+  return RelationshipFormView;
+
+})();
+
+var RelationshipView = (function() {
+  function RelationshipView(options) {
+    var defaults = {
+      template: _.template(TEMPLATES['relationship.ejs']),
+      relationship: false
+    };
+    this.opt = _.extend(defaults, options);
+    this.template = this.opt.template;
+    this.init();
+  }
+
+  RelationshipView.prototype.init = function(){
+    this.render();
+    this.loadListeners();
+  };
+
+  RelationshipView.prototype.el = function(){
+    return this.$el;
+  };
+
+  RelationshipView.prototype.id = function(){
+    return this.opt.relationship ? this.opt.relationship.id : '';
+  };
+
+  RelationshipView.prototype.loadListeners = function(){
+    var _this = this;
+
+    this.$el.on('click', function(e){
+      e.preventDefault();
+      _this.showForm();
+    });
+  };
+
+  RelationshipView.prototype.render = function(){
+    this.$el = this.$el || $('<div class="relationship" data-id="'+this.opt.relationship.id+'"></div>');
+    this.$el.html(this.template(this.opt));
+  };
+
+  RelationshipView.prototype.showForm = function(){
+    this.form_view = this.form_view || new RelationshipFormView({relationship: this.opt.relationship});
+    this.form_view.init();
+  };
+
+  RelationshipView.prototype.update = function(data){
+    this.opt.relationship = _.extend({}, this.opt.relationship, data);
+    this.render();
+  };
+
+  return RelationshipView;
+
+})();
+
 var SigninView = (function() {
   function SigninView(options) {
     var defaults = {
@@ -596,11 +764,24 @@ var SpaceView = (function() {
   }
 
   SpaceView.prototype.init = function(){
+    this.space = false;
     this.$el = $(this.opt.el);
+    this.$relationshipViews = [];
     this.template = this.opt.template;
     this.opt.user = this.opt.user_model.getUserData();
     this.render();
     this.loadListeners();
+  };
+
+  SpaceView.prototype.addRelationship = function(data){
+    var relationship = this.space.addRelationship(data);
+    var view = new RelationshipView({relationship: relationship.toJSON()});
+    this.$el.find('.relationships').append(view.el());
+    this.$relationshipViews.push(view);
+  };
+
+  SpaceView.prototype.isActive = function(){
+    return (this.$el.attr('view') == this.opt.id);
   };
 
   SpaceView.prototype.loadListeners = function(){
@@ -620,18 +801,51 @@ var SpaceView = (function() {
       _this.opt.user = false;
       _this.render();
     });
+
+    $.subscribe('relationship.create', function(e, data){
+      console.log('Creating relationship', data);
+      _this.addRelationship(data);
+    });
+
+    $.subscribe('relationship.update', function(e, data){
+      console.log('Updating relationship', data);
+      _this.updateRelationship(data);
+    });
   };
 
   SpaceView.prototype.loadSpace = function(){
     if (!this.opt.user) return false;
     var props = this.opt.user.space || {};
-    var space = new SpaceModel(props);
-    return space.toJSON();
+    this.space = new SpaceModel(props);
   };
 
   SpaceView.prototype.render = function(){
-    this.opt.space = this.loadSpace();
+    var _this = this;
+    
+    this.loadSpace();
+    if (this.space) this.opt.space = this.space.toJSON();
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
+
+    // render relationships
+    var $relationships = $('<div class="relationships">');
+    _.each(this.opt.space.relationships, function(r){
+      var view = new RelationshipView({relationship: r});
+      $relationships.append(view.el());
+      _this.$relationshipViews.push(view);
+    });
+    this.$el.find('.relationships-wrapper').html($relationships);
+  };
+
+  SpaceView.prototype.updateRelationship = function(data){
+    var id = data.id;
+    data = _.omit(data, 'id');
+
+    // update space
+    var relationship = this.space.updateRelationship(id, data);
+
+    // update view
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
+    if (view) view.update(data);
   };
 
   return SpaceView;
@@ -1015,6 +1229,16 @@ $(function(){
       this.forgot_view.init();
     },
 
+    // relationships add
+    '/relationships/add': function(){
+      if (!this.space_view) {
+        this.space_view = new SpaceView(defaults);
+        this.space_view.init();
+      }
+      this.relationship_form_view = new RelationshipFormView(defaults);
+      this.relationship_form_view.init();
+    },
+
     // reset password
     '/reset/:code': function(code){
       this.reset_view = this.reset_view || new ResetView(_.extend({},defaults,{code: code}));
@@ -1041,11 +1265,6 @@ $(function(){
   };
 
   var router = Router(routes);
-
-  router.configure({
-    on: function(){}
-  });
-
   router.init('/');
 
 });

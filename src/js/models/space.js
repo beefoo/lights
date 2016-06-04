@@ -9,6 +9,13 @@ var SpaceModel = (function() {
     this.parseData(this.props.data);
   };
 
+  SpaceModel.prototype.addRelationship = function(data){
+    var relationship = new RelationshipModel(data);
+    this.props.relationships.push(relationship);
+    this.save();
+    return relationship;
+  };
+
   SpaceModel.prototype.defaultProps = function(){
     return {
       data: {},
@@ -44,7 +51,7 @@ var SpaceModel = (function() {
     var _this = this,
         data = {data: this.toString()};
 
-    $.post(this.props.base_url + '/spaces/save', data, function(resp){
+    $.post(CONFIG.base_url + '/spaces/save', data, function(resp){
       console.log(resp);
 
       // success
@@ -78,16 +85,22 @@ var SpaceModel = (function() {
     var data = {
       relationships: {
         fields: relationship_fields,
-        data: this._collectionToArray(this.relationships, relationship_fields)
+        data: this._collectionToArray(this.props.relationships, relationship_fields)
       },
       meetings: {
         fields: meeting_fields,
-        data: this._collectionToArray(this.meetings, meeting_fields)
+        data: this._collectionToArray(this.props.meetings, meeting_fields)
       }
     };
 
     // stringify
     return JSON.stringify(data);
+  };
+
+  SpaceModel.prototype.updateRelationship = function(id, data){
+    var r = _.find(this.props.relationships, function(r){ return r.id()==id; });
+    if (r) r.update(data);
+    this.save();
   };
 
   SpaceModel.prototype._collectionToArray = function(collection, fields){

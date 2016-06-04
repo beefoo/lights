@@ -26,6 +26,16 @@ $(function(){
       this.forgot_view.init();
     },
 
+    // relationships add
+    '/relationships/add': function(){
+      if (!this.space_view) {
+        this.space_view = new SpaceView(defaults);
+        this.space_view.init();
+      }
+      this.relationship_form_view = new RelationshipFormView(defaults);
+      this.relationship_form_view.init();
+    },
+
     // reset password
     '/reset/:code': function(code){
       this.reset_view = this.reset_view || new ResetView(_.extend({},defaults,{code: code}));
@@ -52,11 +62,6 @@ $(function(){
   };
 
   var router = Router(routes);
-
-  router.configure({
-    on: function(){}
-  });
-
   router.init('/');
 
 });
