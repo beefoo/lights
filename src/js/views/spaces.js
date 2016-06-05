@@ -7,16 +7,16 @@ var SpaceView = (function() {
       space: false
     };
     this.opt = _.extend(defaults, options);
-  }
-
-  SpaceView.prototype.init = function(){
     this.space = false;
     this.$el = $(this.opt.el);
     this.$relationshipViews = [];
     this.template = this.opt.template;
     this.opt.user = this.opt.user_model.getUserData();
-    this.render();
     this.loadListeners();
+  }
+
+  SpaceView.prototype.init = function(){
+    this.render();
   };
 
   SpaceView.prototype.addRelationship = function(data){
@@ -26,12 +26,26 @@ var SpaceView = (function() {
     this.$relationshipViews.push(view);
   };
 
+  SpaceView.prototype.deleteRelationship = function(id){
+    // update space
+    var relationship = this.space.deleteRelationship(id);
+
+    // update view
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
+    if (view) view.remove();
+  };
+
   SpaceView.prototype.isActive = function(){
     return (this.$el.attr('view') == this.opt.id);
   };
 
   SpaceView.prototype.loadListeners = function(){
     var _this = this;
+
+    this.$el.on('click', '.add-relationship', function(e){
+      e.preventDefault();
+      $.publish('modals.open', [RelationshipFormView, {}]);
+    });
 
     $.subscribe('users.refresh', function(e, user, message){
       _this.opt.user = user;
@@ -55,7 +69,14 @@ var SpaceView = (function() {
 
     $.subscribe('relationship.update', function(e, data){
       console.log('Updating relationship', data);
-      _this.updateRelationship(data);
+      var id = data.id;
+      data = _.omit(data, 'id');
+      _this.updateRelationship(id, data);
+    });
+
+    $.subscribe('relationship.delete', function(e, id){
+      console.log('Deleting relationship', id);
+      _this.deleteRelationship(id);
     });
   };
 
@@ -67,7 +88,7 @@ var SpaceView = (function() {
 
   SpaceView.prototype.render = function(){
     var _this = this;
-    
+
     this.loadSpace();
     if (this.space) this.opt.space = this.space.toJSON();
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
@@ -75,17 +96,16 @@ var SpaceView = (function() {
     // render relationships
     var $relationships = $('<div class="relationships">');
     _.each(this.opt.space.relationships, function(r){
-      var view = new RelationshipView({relationship: r});
-      $relationships.append(view.el());
-      _this.$relationshipViews.push(view);
+      if (r.active) {
+        var view = new RelationshipView({relationship: r});
+        $relationships.append(view.el());
+        _this.$relationshipViews.push(view);
+      }
     });
     this.$el.find('.relationships-wrapper').html($relationships);
   };
 
-  SpaceView.prototype.updateRelationship = function(data){
-    var id = data.id;
-    data = _.omit(data, 'id');
-
+  SpaceView.prototype.updateRelationship = function(id, data){
     // update space
     var relationship = this.space.updateRelationship(id, data);
 

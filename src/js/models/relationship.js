@@ -18,7 +18,8 @@ var RelationshipModel = (function() {
       method: 'in_person',
       rhythm: 'week_1',
       notes: '',
-      last_meeting_at: ''
+      last_meeting_at: '',
+      active: 1
     };
   };
 
@@ -29,6 +30,10 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.id = function(){
     return this.props.id;
+  };
+
+  RelationshipModel.prototype.isActive = function(){
+    return this.props.active;
   };
 
   RelationshipModel.prototype.toJSON = function(){

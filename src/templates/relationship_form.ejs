@@ -8,16 +8,20 @@
     <label for="method">Contact Method</label>
     <select name="method">
       <% _.each(methods, function(m){ %>
-        <option value="<%= m['value'] %>" <%= relationship && relationship.method==m['value'] ? 'selected' : '' %>><%= m['label'] %></option>
+        <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? 'selected' : '' %>><%= m.label %></option>
       <% }) %>
     </select>
 
     <label for="rhythm">Rhythm</label>
     <select name="rhythm">
       <% _.each(rhythms, function(r){ %>
-        <option value="<%= r['value'] %>" <%= relationship && relationship.rhythm==r['value'] ? 'selected' : '' %>><%= r['label'] %></option>
+        <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? 'selected' : '' %>><%= r.label %></option>
       <% }) %>
     </select>
+
+    <% if (relationship) { %>
+    <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>
+    <% } %>
 
     <input name="id" type="hidden" value="<%= relationship ? relationship.id : '' %>" />
 

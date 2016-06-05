@@ -12,6 +12,7 @@ $(function(){
   var defaults = _.extend({}, CONFIG);
   defaults.user_model = new UserModel(defaults);
   var header_view = new HeaderView(defaults);
+  var modals_view = new ModalsView(defaults);
 
   var routes = {
     // account
@@ -24,16 +25,6 @@ $(function(){
     '/forgot': function(){
       this.forgot_view = this.forgot_view || new ForgotView(defaults);
       this.forgot_view.init();
-    },
-
-    // relationships add
-    '/relationships/add': function(){
-      if (!this.space_view) {
-        this.space_view = new SpaceView(defaults);
-        this.space_view.init();
-      }
-      this.relationship_form_view = new RelationshipFormView(defaults);
-      this.relationship_form_view.init();
     },
 
     // reset password

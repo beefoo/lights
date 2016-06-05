@@ -31,14 +31,18 @@ var RelationshipView = (function() {
     });
   };
 
+  RelationshipView.prototype.remove = function(){
+    this.$el && this.$el.remove();
+  };
+
   RelationshipView.prototype.render = function(){
     this.$el = this.$el || $('<div class="relationship" data-id="'+this.opt.relationship.id+'"></div>');
     this.$el.html(this.template(this.opt));
   };
 
   RelationshipView.prototype.showForm = function(){
-    this.form_view = this.form_view || new RelationshipFormView({relationship: this.opt.relationship});
-    this.form_view.init();
+    var data = {relationship: this.opt.relationship};
+    $.publish('modals.open', [RelationshipFormView, data]);
   };
 
   RelationshipView.prototype.update = function(data){

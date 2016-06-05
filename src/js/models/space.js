@@ -24,6 +24,10 @@ var SpaceModel = (function() {
     }
   };
 
+  SpaceModel.prototype.deleteRelationship = function(id){
+    this.updateRelationship(id, {active: 0});
+  };
+
   SpaceModel.prototype.parseData = function(data){
     var f;
     data = data || {};
