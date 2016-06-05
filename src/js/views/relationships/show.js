@@ -36,7 +36,7 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.render = function(){
-    this.$el = this.$el || $('<div class="relationship" data-id="'+this.opt.relationship.id+'"></div>');
+    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+this.opt.relationship.id+'"></a>');
     this.$el.html(this.template(this.opt));
   };
 

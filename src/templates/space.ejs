@@ -1,9 +1,13 @@
-<div class="intro <%= !space ? 'active' : '' %>">
-  <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p>
-</div>
+<div class="space">
+  
+  <div class="intro <%= !space ? 'active' : '' %>">
+    <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p>
+  </div>
 
-<div class="empty <%= space && !space.relationships.length ? 'active' : '' %>">
-  <p>No relationships yet. <a href="#/relationships/add" class="add-relationship">Add one</a>.</p>
-</div>
+  <div class="empty <%= space && !space.relationships.length ? 'active' : '' %>">
+    <p>No relationships yet. <a href="#/relationships/add" class="add-relationship">Add one</a>.</p>
+  </div>
 
-<div class="relationships-wrapper"></div>
+  <div class="relationships-wrapper"></div>
+
+</div>

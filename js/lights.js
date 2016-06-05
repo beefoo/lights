@@ -118,14 +118,14 @@ $.fn.serializeObject = function()
 
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% if (user) { %>  <form class="form account-form">    <label for="email">Email</label>    <input name="email" type="email" placeholder="Email" value="<%= user.email %>" />    <label for="pass">Update your password<br /><small>Leave blank if are not updating your password</small></label>    <input name="pass" type="password" placeholder="New Password" />    <label for="current_pass">Confirm your current password</label>    <input name="current_pass" type="password" placeholder="Current Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } else { %>  <p><a href="#/signin">Sign in</a> to edit your account.</p><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form forgot-form">    <p>Enter your email address and instructions will be sent to reset your password</p>    <input name="email" type="text" placeholder="Email" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<h1><a href="#/">Home</a></h1><nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message" role="alert"></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<nav class="nav main" role="menubar">  <a href="#/" role="menuitem" class="nav-item">Home</a>  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message main" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="name"><%= relationship ? relationship.name : \'\' %></div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<div class="modal">  <form class="relationship-form">    <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>    <label for="name">Name</label>    <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />    <label for="method">Contact Method</label>    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>      <% }) %>    </select>    <label for="rhythm">Rhythm</label>    <select name="rhythm">      <% _.each(rhythms, function(r){ %>        <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>      <% }) %>    </select>    <% if (relationship) { %>    <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>    <% } %>    <input name="id" type="hidden" value="<%= relationship ? relationship.id : \'\' %>" />    <button type="submit">Submit</button>  </form></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <% } %>  <input name="id" type="hidden" value="<%= relationship ? relationship.id : \'\' %>" />  <button type="submit">Submit</button></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<div class="intro <%= !space ? \'active\' : \'\' %>">  <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p></div><div class="empty <%= space && !space.relationships.length ? \'active\' : \'\' %>">  <p>No relationships yet. <a href="#/relationships/add" class="add-relationship">Add one</a>.</p></div><div class="relationships-wrapper"></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["space.ejs"] = '<div class="space">    <div class="intro <%= !space ? \'active\' : \'\' %>">    <p>Intro. <a href="#/signin">Sign in</a> or <a href="#/signup">sign up</a>.</p>  </div>  <div class="empty <%= space && !space.relationships.length ? \'active\' : \'\' %>">    <p>No relationships yet. <a href="#/relationships/add" class="add-relationship">Add one</a>.</p>  </div>  <div class="relationships-wrapper"></div></div>';
 var MeetingModel = (function() {
   function MeetingModel(props) {
     var defaults = this.defaultProps();
@@ -564,12 +564,18 @@ var ModalsView = (function() {
   ModalsView.prototype.closeModals = function() {
     if (this.activeModal) {
       this.activeModal.remove && this.activeModal.remove();
+      this.activeModal = false;
     }
-    this.$el.empty().removeClass('active');
+    this.$el.removeClass('active').find('.modal-content').empty();
   };
 
   ModalsView.prototype.loadListeners = function(){
     var _this = this;
+
+    this.$el.on('click', '.modal-close', function(e){
+      e.preventDefault();
+      _this.closeModals();
+    });
 
     $.subscribe('modals.open', function(e, view, data){
       _this.openModal(view, data);
@@ -584,8 +590,9 @@ var ModalsView = (function() {
     if (this.activeModal) this.closeModals();
     this.activeModal = new view(data);
     this.activeModal.init();
-    this.$el.append(this.activeModal.el()).addClass('active');
-  }
+    this.$el.find('.modal-content').append(this.activeModal.el());
+    this.$el.addClass('active');
+  };
 
   return ModalsView;
 
@@ -718,7 +725,7 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.render = function(){
-    this.$el = this.$el || $('<div class="relationship" data-id="'+this.opt.relationship.id+'"></div>');
+    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+this.opt.relationship.id+'"></a>');
     this.$el.html(this.template(this.opt));
   };
 
@@ -915,7 +922,10 @@ var SpaceView = (function() {
   };
 
   SpaceView.prototype.loadSpace = function(){
-    if (!this.opt.user) return false;
+    if (!this.opt.user) {
+      this.space = false;
+      return false;
+    }
     var props = this.opt.user.space || {};
     this.space = new SpaceModel(props);
   };
@@ -924,18 +934,20 @@ var SpaceView = (function() {
     var _this = this;
 
     this.loadSpace();
-    if (this.space) this.opt.space = this.space.toJSON();
+    this.opt.space = this.space ? this.space.toJSON() : false;
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
 
     // render relationships
     var $relationships = $('<div class="relationships">');
-    _.each(this.opt.space.relationships, function(r){
-      if (r.active) {
-        var view = new RelationshipView({relationship: r});
-        $relationships.append(view.el());
-        _this.$relationshipViews.push(view);
-      }
-    });
+    if (this.opt.space) {
+      _.each(this.opt.space.relationships, function(r){
+        if (r.active) {
+          var view = new RelationshipView({relationship: r});
+          $relationships.append(view.el());
+          _this.$relationshipViews.push(view);
+        }
+      });
+    }
     this.$el.find('.relationships-wrapper').html($relationships);
   };
 

@@ -4,3 +4,175 @@
 @import "normalize";
 @import "animations";
 @import "common";
+
+$nav-height: 40px;
+.nav {
+  text-align: right;
+  width: 100%;
+  height: $nav-height;
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  .nav-item {
+    display: inline-block;
+    padding: 0 0.6em;
+    height: $nav-height;
+    line-height: $nav-height;
+  }
+}
+
+.message.main {
+  margin: 0 20px;
+  background: $highlight;
+  font-size: 0.8em;
+  text-align: center;
+  position: fixed;
+  top: $nav-height;
+  right: 0;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  @include transform(translate3d(0, 100%, 0));
+
+  &.active {
+    @include transform(none);
+    width: auto;
+    height: auto;
+  }
+}
+
+.relationships-wrapper {
+  text-align: center;
+
+  .relationship {
+    display: inline-block;
+    padding: 0.5em 1em;
+    margin: 0.5 1em;
+  }
+
+}
+
+.space {
+  margin-top: $nav-height;
+  
+  .intro,
+  .empty {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}
+
+form {
+  margin: auto;
+
+  label {
+    display: block;
+    margin-top: 1em;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  select {
+    display: block;
+    margin: 0.5em 0 1em;
+  }
+
+  button {
+    display: block;
+    margin-top: 1em;
+    max-width: 200px;
+  }
+}
+
+$modal-max-width: 600px;
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2000;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  @include transform(translate3d(0, 100%, 0));
+
+  // Show modal when requested
+  &.active {
+    @include transform(none);
+    width: auto;
+    height: auto;
+  }
+
+  // Content Area
+  .modal-content {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    z-index: 20;
+    margin-left: -($modal-max-width / 2);
+    width: $modal-max-width;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; // Native style momentum scrolling
+    background: $white;
+    padding: 20px;
+    @include box-sizing();
+  }
+
+  // A close button
+  .modal-close {
+    display: block;
+    height: 1px; // Prevent close element to appear
+    clip: rect(0 0 0 0);
+    margin: -1px;
+    overflow: hidden;
+
+    &:focus:after {
+      outline: none;
+    }
+
+    // Background as close
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      background: rgba($black, 0.9);
+    }
+
+    // Actual close button on modal
+    &:after {
+      content: '\00d7';
+      position: absolute;
+      top: 56px;
+      right: 50%;
+      z-index: 1001;
+      margin-right: -($modal-max-width / 2) + 10px;
+      cursor: pointer;
+      font-size: 2em;
+    }
+  }
+
+  // When screen isn't as wide as the modal anymore
+  @media screen and (max-width: $modal-max-width + 40) {
+    .modal-content {
+      width: auto;
+      left: 20px;
+      right: 20px;
+      margin-left: 0;
+    }
+
+    .modal-close {
+      &:after {
+        margin-right: 10px;
+        right: 20px;
+      }
+    }
+  }
+}

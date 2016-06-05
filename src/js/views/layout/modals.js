@@ -17,12 +17,18 @@ var ModalsView = (function() {
   ModalsView.prototype.closeModals = function() {
     if (this.activeModal) {
       this.activeModal.remove && this.activeModal.remove();
+      this.activeModal = false;
     }
-    this.$el.empty().removeClass('active');
+    this.$el.removeClass('active').find('.modal-content').empty();
   };
 
   ModalsView.prototype.loadListeners = function(){
     var _this = this;
+
+    this.$el.on('click', '.modal-close', function(e){
+      e.preventDefault();
+      _this.closeModals();
+    });
 
     $.subscribe('modals.open', function(e, view, data){
       _this.openModal(view, data);
@@ -37,8 +43,9 @@ var ModalsView = (function() {
     if (this.activeModal) this.closeModals();
     this.activeModal = new view(data);
     this.activeModal.init();
-    this.$el.append(this.activeModal.el()).addClass('active');
-  }
+    this.$el.find('.modal-content').append(this.activeModal.el());
+    this.$el.addClass('active');
+  };
 
   return ModalsView;
 

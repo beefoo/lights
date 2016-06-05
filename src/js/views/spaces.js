@@ -81,7 +81,10 @@ var SpaceView = (function() {
   };
 
   SpaceView.prototype.loadSpace = function(){
-    if (!this.opt.user) return false;
+    if (!this.opt.user) {
+      this.space = false;
+      return false;
+    }
     var props = this.opt.user.space || {};
     this.space = new SpaceModel(props);
   };
@@ -90,18 +93,20 @@ var SpaceView = (function() {
     var _this = this;
 
     this.loadSpace();
-    if (this.space) this.opt.space = this.space.toJSON();
+    this.opt.space = this.space ? this.space.toJSON() : false;
     this.$el.html(this.template(this.opt)).attr('view', this.opt.id);
 
     // render relationships
     var $relationships = $('<div class="relationships">');
-    _.each(this.opt.space.relationships, function(r){
-      if (r.active) {
-        var view = new RelationshipView({relationship: r});
-        $relationships.append(view.el());
-        _this.$relationshipViews.push(view);
-      }
-    });
+    if (this.opt.space) {
+      _.each(this.opt.space.relationships, function(r){
+        if (r.active) {
+          var view = new RelationshipView({relationship: r});
+          $relationships.append(view.el());
+          _this.$relationshipViews.push(view);
+        }
+      });
+    }
     this.$el.find('.relationships-wrapper').html($relationships);
   };
 

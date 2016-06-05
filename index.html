@@ -14,7 +14,10 @@
   <div id="app" class="app">
     <header id="header"></header>
     <div id="main" role="main"></div>
-    <div id="modal-container"></div>
+    <div id="modal-container" class="modal" role="dialog" tabindex="-1">
+      <div class="modal-content"></div>
+      <a href="#close" class="modal-close" title="Close this modal" aria-label="Close" role="button">x</a>
+    </div>
   </div>
 
   <script src="/js/lights.js"></script>
