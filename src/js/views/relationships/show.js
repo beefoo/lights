@@ -36,7 +36,15 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.render = function(){
-    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+this.opt.relationship.id+'"></a>');
+    var r = this.opt.relationship;
+
+    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
+    this.$el.css({
+      width: r.width + 'vw',
+      height: (r.width * (480/662)) + 'vw',
+      top: r.top + 'vh',
+      left: r.left + 'vw'
+    });
     this.$el.html(this.template(this.opt));
   };
 

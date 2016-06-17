@@ -120,7 +120,7 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% i
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form forgot-form">    <p>Enter your email address and instructions will be sent to reset your password</p>    <input name="email" type="text" placeholder="Email" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<nav class="nav main" role="menubar">  <a href="#/" role="menuitem" class="nav-item">Home</a>  <% if (user) { %>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message main" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="name"><%= relationship ? relationship.name : \'\' %></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light one"></div><div class="light two"></div><div class="light three"></div><div class="light four"></div><div class="name"><%= relationship ? relationship.name : \'\' %></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <% } %>  <input name="id" type="hidden" value="<%= relationship ? relationship.id : \'\' %>" />  <button type="submit">Submit</button></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
@@ -178,7 +178,10 @@ var RelationshipModel = (function() {
       rhythm: 'week_1',
       notes: '',
       last_meeting_at: '',
-      active: 1
+      active: 1,
+      width: 30,
+      left: 10,
+      top: 10
     };
   };
 
@@ -725,7 +728,15 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.render = function(){
-    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+this.opt.relationship.id+'"></a>');
+    var r = this.opt.relationship;
+
+    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
+    this.$el.css({
+      width: r.width + 'vw',
+      height: (r.width * (480/662)) + 'vw',
+      top: r.top + 'vh',
+      left: r.left + 'vw'
+    });
     this.$el.html(this.template(this.opt));
   };
 

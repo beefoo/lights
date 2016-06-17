@@ -19,7 +19,10 @@ var RelationshipModel = (function() {
       rhythm: 'week_1',
       notes: '',
       last_meeting_at: '',
-      active: 1
+      active: 1,
+      width: 30,
+      left: 10,
+      top: 10
     };
   };
 
