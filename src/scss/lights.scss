@@ -59,35 +59,57 @@ $nav-height: 40px;
     display: none;
   }
 
+  .string {
+    display: block;
+    position: absolute;
+    width: 2px;
+    height: 2000px;
+    top: -1970px;
+    left: 50%;
+    margin-left: -1px;
+    background: #292323;
+    z-index: 3;
+
+    &:before {
+      content: " ";
+      display: block;
+      width: 100%;
+      height: 30px;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      background: -moz-linear-gradient(top, #292323 0%, #000000 100%);
+      background: -webkit-linear-gradient(top, #292323 0%,#000000 100%);
+      background: linear-gradient(to bottom, #292323 0%,#000000 100%);
+    }
+  }
+
   .light {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
     right: 0;
-    background: 0 0 no-repeat url(../img/lightbulb/lightbulb_08.png);
+    background: 0 0 no-repeat url(../img/lightbulb/lightbulb01a.png);
     background-size: 100% auto;
     z-index: 1;
 
-    &.two,
-    &.three,
-    &.four {
-      @include animation(fadeInOut 3s infinite);
+    &.flicker {
+      background-image: url(../img/lightbulb/lightbulb01b.png);
+      @include animation(fadeInOut 0.08s infinite);
+      z-index: 2;
     }
 
-    &.two {
-      background-position: 0 100%;
+    @for $i from 2 through 8 {
+      &.level#{$i} {
+        background: 0 0 no-repeat url(../img/lightbulb/lightbulb0#{$i}a.png);
+        background-size: 100% auto;
+        &.flicker {
+          background-image: url(../img/lightbulb/lightbulb0#{$i}b.png);
+        }
+      }
     }
 
-    &.three {
-      background-position: 0 200%;
-      @include animation-delay(1s);
-    }
-
-    &.four {
-      background-position: 0 300%;
-      @include animation-delay(2s);
-    }
   }
 
 }

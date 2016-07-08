@@ -45,6 +45,9 @@ var RelationshipView = (function() {
       top: r.top + 'vh',
       left: r.left + 'vw'
     });
+
+    // this.opt.relationship.level = 0;
+
     this.$el.html(this.template(this.opt));
   };
 

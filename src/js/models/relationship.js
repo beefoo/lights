@@ -6,9 +6,17 @@ var RelationshipModel = (function() {
   }
 
   RelationshipModel.prototype.init = function(){
+    // create an id if not exists
     if (!this.props.id) {
       this.props.id = UTIL.makeId(16);
     }
+
+    // parse date if present
+    if (this.props.last_meeting_at && this.props.last_meeting_at.length && !this.props.last_meeting_at instanceof Date) {
+      this.props.last_meeting_at = new Date(this.props.last_meeting_at);
+    }
+
+    // parse rhythm
   };
 
   RelationshipModel.prototype.defaultProps = function(){
