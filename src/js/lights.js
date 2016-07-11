@@ -1,7 +1,10 @@
+'use strict';
+
 //=include vendor/jquery-1.12.1.min.js
 //=include vendor/underscore-min.js
 //=include vendor/ba-tiny-pubsub.min.js
 //=include vendor/director.min.js
+//=include vendor/hammer.min.js
 //=include config.js
 //=include utilities.js
 //=include templates.js

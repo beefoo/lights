@@ -69,7 +69,7 @@ var RelationshipFormView = (function() {
 
   RelationshipFormView.prototype.remove = function(){
     this.$el.off('submit', '.relationship-form');
-    this.$el.on('click', '.remove-relationship');
+    this.$el.off('click', '.remove-relationship');
   };
 
   RelationshipFormView.prototype.submit = function(data){

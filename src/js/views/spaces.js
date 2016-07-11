@@ -78,6 +78,7 @@ var SpaceView = (function() {
       console.log('Deleting relationship', id);
       _this.deleteRelationship(id);
     });
+
   };
 
   SpaceView.prototype.loadSpace = function(){
