@@ -60,6 +60,11 @@ $.fn.serializeObject = function()
     return UTIL.round(seconds, dec);
   };
 
+  // Linear interpolation
+  UTIL.lerp = function(a, b, t) {
+    return a + (b-a)*t;
+  };
+
   // Make a random id
   UTIL.makeId = function(length){
     var text = "",

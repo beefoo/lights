@@ -96,6 +96,11 @@ $.fn.serializeObject = function()
     return UTIL.round(seconds, dec);
   };
 
+  // Linear interpolation
+  UTIL.lerp = function(a, b, t) {
+    return a + (b-a)*t;
+  };
+
   // Make a random id
   UTIL.makeId = function(length){
     var text = "",
@@ -188,6 +193,7 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.defaultProps = function(){
+    var ratio = 480/662;
     return {
       id: 0,
       name: 'Unknown',
@@ -198,7 +204,8 @@ var RelationshipModel = (function() {
       active: 1,
       width: 30,
       left: 10,
-      top: 10
+      top: 10,
+      ratio: ratio
     };
   };
 
@@ -711,7 +718,8 @@ var RelationshipView = (function() {
   function RelationshipView(options) {
     var defaults = {
       template: _.template(TEMPLATES['relationship.ejs']),
-      relationship: false
+      relationship: false,
+      widthRange: [20, 50]
     };
     this.opt = _.extend(defaults, options);
     this.template = this.opt.template;
@@ -719,6 +727,7 @@ var RelationshipView = (function() {
   }
 
   RelationshipView.prototype.init = function(){
+    this.setWindowSize();
     this.render();
     this.loadListeners();
   };
@@ -773,6 +782,7 @@ var RelationshipView = (function() {
     var startPos, startGesture;
     h.on("panstart", function(e){
       e.preventDefault();
+      _this.setWindowSize();
       startPos = _this.getPosition();
       startGesture= _this.getGestureData(e);
     });
@@ -796,9 +806,15 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.move = function(pos, delta){
+    var x = pos.x + delta.x;
+    var y = pos.y + delta.y;
+    var z = UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
+    var r = this.opt.relationship;
     this.$el.css({
-      left: (pos.x + delta.x) + 'px',
-      top: (pos.y + delta.y) + 'px'
+      left: x + 'px',
+      top: y + 'px',
+      width: z + 'px',
+      height: (z * r.ratio) + 'px'
     });
   };
 
@@ -810,9 +826,10 @@ var RelationshipView = (function() {
     var r = this.opt.relationship;
 
     this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
+
     this.$el.css({
       width: r.width + 'vw',
-      height: (r.width * (480/662)) + 'vw',
+      height: (r.width * r.ratio) + 'vw',
       top: r.top + 'vh',
       left: r.left + 'vw'
     });
@@ -820,6 +837,11 @@ var RelationshipView = (function() {
     // this.opt.relationship.level = 0;
 
     this.$el.html(this.template(this.opt));
+  };
+
+  RelationshipView.prototype.setWindowSize = function(){
+    this.windowWidth = $(window).width();
+    this.windowHeight = $(window).height();
   };
 
   RelationshipView.prototype.showForm = function(){
@@ -835,14 +857,16 @@ var RelationshipView = (function() {
   RelationshipView.prototype.updatePosition = function(){
     var r = this.opt.relationship;
     var $el = this.$el;
-    var vw = $(window).width();
-    var vh = $(window).height();
+    var vw = this.windowWidth;
+    var vh = this.windowHeight;
     var x = parseFloat($el.css('left'));
     var y = parseFloat($el.css('top'));
+    var z = parseFloat($el.width());
     $.publish('relationship.update', {
       id: r.id,
       left: (x/vw*100),
-      top: (y/vh*100)
+      top: (y/vh*100),
+      width: (z/vw*100)
     });
   };
 
