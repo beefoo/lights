@@ -20,7 +20,6 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.defaultProps = function(){
-    var ratio = 480/662;
     return {
       id: 0,
       name: 'Unknown',
@@ -31,8 +30,7 @@ var RelationshipModel = (function() {
       active: 1,
       width: 30,
       left: 10,
-      top: 10,
-      ratio: ratio
+      top: 10
     };
   };
 

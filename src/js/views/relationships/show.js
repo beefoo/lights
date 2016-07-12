@@ -3,7 +3,8 @@ var RelationshipView = (function() {
     var defaults = {
       template: _.template(TEMPLATES['relationship.ejs']),
       relationship: false,
-      widthRange: [20, 50]
+      widthRange: [20, 50],
+      aspectRatio: (480/662)
     };
     this.opt = _.extend(defaults, options);
     this.template = this.opt.template;
@@ -94,11 +95,12 @@ var RelationshipView = (function() {
     var y = pos.y + delta.y;
     var z = UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
     var r = this.opt.relationship;
+    var aspectRatio = this.opt.aspectRatio;
     this.$el.css({
       left: x + 'px',
       top: y + 'px',
       width: z + 'px',
-      height: (z * r.ratio) + 'px'
+      height: (z * aspectRatio) + 'px'
     });
   };
 
@@ -108,12 +110,13 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.render = function(){
     var r = this.opt.relationship;
+    var aspectRatio = this.opt.aspectRatio;
 
     this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
 
     this.$el.css({
       width: r.width + 'vw',
-      height: (r.width * r.ratio) + 'vw',
+      height: (r.width * aspectRatio) + 'vw',
       top: r.top + 'vh',
       left: r.left + 'vw'
     });
