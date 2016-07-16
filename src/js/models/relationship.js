@@ -11,24 +11,19 @@ var RelationshipModel = (function() {
       this.props.id = UTIL.makeId(16);
     }
 
-    // parse date if present
-    if (this.props.last_meeting_at && this.props.last_meeting_at.length && !this.props.last_meeting_at instanceof Date) {
-      this.props.last_meeting_at = new Date(this.props.last_meeting_at);
-    }
-
-    // parse rhythm
+    this.onUpdate();
   };
 
   RelationshipModel.prototype.defaultProps = function(){
+    var left = _.random(30, 70);
+    var top = _.random(20, 40);
     return {
       id: 0,
       name: 'Unknown',
       method: 'in_person',
       rhythm: 'week_1',
       notes: '',
-      last_meeting_at: '',
       active: 1,
-      width: 30,
       left: 10,
       top: 10
     };
@@ -47,6 +42,11 @@ var RelationshipModel = (function() {
     return this.props.active;
   };
 
+  RelationshipModel.prototype.onUpdate = function(){
+    // parse rhythm
+    this.props.rhythm = this._parseRhythmString(this.props.rhythm);
+  };
+
   RelationshipModel.prototype.toJSON = function(){
     return _.clone(this.props);
   };
@@ -58,6 +58,25 @@ var RelationshipModel = (function() {
     _.each(fields, function(f){
       if (data[f]) _this.props[f] = data[f];
     });
+
+    this.onUpdate();
+  };
+
+  RelationshipModel.prototype._parseRhythmString = function(str){
+    if (!str) return false;
+    if (_.isObject(str)) return str;
+
+    var parts = str.split('_');
+    var rhythm = false;
+
+    if (parts.length==2) {
+      rhythm = {
+        unit: parts[0],
+        amount: parseInt(parts[1])
+      }
+    }
+
+    return rhythm;
   };
 
   return RelationshipModel;

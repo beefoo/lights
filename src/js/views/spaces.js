@@ -22,6 +22,7 @@ var SpaceView = (function() {
   SpaceView.prototype.addRelationship = function(data){
     var relationship = this.space.addRelationship(data);
     var view = new RelationshipView({relationship: relationship.toJSON()});
+    this.$el.find('.empty').removeClass('active');
     this.$el.find('.relationships').append(view.el());
     this.$relationshipViews.push(view);
   };

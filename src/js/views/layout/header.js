@@ -32,6 +32,11 @@ var HeaderView = (function() {
       _this.opt.user_model.signout();
     });
 
+    this.$el.on('click', '.add-relationship', function(e){
+      e.preventDefault();
+      $.publish('modals.open', [RelationshipFormView, {}]);
+    });
+
     $.subscribe('users.refresh', function(e, user){
       _this.opt.user = user;
       _this.render();

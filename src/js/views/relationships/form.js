@@ -15,6 +15,7 @@ var RelationshipFormView = (function() {
         {value: 'month_1', label: 'Month'},
         {value: 'month_2', label: '2 Months'},
         {value: 'month_3', label: '3 Months'},
+        {value: 'month_4', label: '4 Months'},
         {value: 'month_6', label: '6 Months'},
         {value: 'year_1', label: 'Year'}
       ],

@@ -7,11 +7,18 @@ var RelationshipView = (function() {
       aspectRatio: (480/662)
     };
     this.opt = _.extend(defaults, options);
-    this.template = this.opt.template;
+
     this.init();
   }
 
   RelationshipView.prototype.init = function(){
+    this.template = this.opt.template;
+
+    // this.relationshipModel = false;
+    // if (this.opt.relationship) {
+    //   this.relationshipModel = new RelationshipModel(this.opt.relationship);
+    // }
+
     this.setWindowSize();
     this.render();
     this.loadListeners();
@@ -41,6 +48,14 @@ var RelationshipView = (function() {
       x: parseFloat($el.css('left')),
       y: parseFloat($el.css('top'))
     }
+  };
+
+  RelationshipView.prototype.getWidth = function(top){
+    return UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], top / 100);
+  };
+
+  RelationshipView.prototype.getWidthPx = function(y){
+    return UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
   };
 
   RelationshipView.prototype.id = function(){
@@ -93,14 +108,14 @@ var RelationshipView = (function() {
   RelationshipView.prototype.move = function(pos, delta){
     var x = pos.x + delta.x;
     var y = pos.y + delta.y;
-    var z = UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
+    var w = this.getWidthPx(y);
     var r = this.opt.relationship;
     var aspectRatio = this.opt.aspectRatio;
     this.$el.css({
       left: x + 'px',
       top: y + 'px',
-      width: z + 'px',
-      height: (z * aspectRatio) + 'px'
+      width: w + 'px',
+      height: (w * aspectRatio) + 'px'
     });
   };
 
@@ -111,12 +126,13 @@ var RelationshipView = (function() {
   RelationshipView.prototype.render = function(){
     var r = this.opt.relationship;
     var aspectRatio = this.opt.aspectRatio;
+    var w = this.getWidth(r.top);
 
     this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
 
     this.$el.css({
-      width: r.width + 'vw',
-      height: (r.width * aspectRatio) + 'vw',
+      width: w + 'vw',
+      height: (w * aspectRatio) + 'vw',
       top: r.top + 'vh',
       left: r.left + 'vw'
     });
