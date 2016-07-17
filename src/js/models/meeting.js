@@ -22,7 +22,7 @@ var MeetingModel = (function() {
   };
 
   MeetingModel.prototype.onUpdate = function(){
-    // parse rhythm
+    // parse date
     this.props.date = this._parseDate(this.props.date);
   };
 

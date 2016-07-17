@@ -19,6 +19,10 @@ var SpaceView = (function() {
     this.render();
   };
 
+  SpaceView.prototype.addMeeting = function(data){
+    var meeting = this.space.addMeeting(data);
+  };
+
   SpaceView.prototype.addRelationship = function(data){
     var relationship = this.space.addRelationship(data);
     var view = new RelationshipView({relationship: relationship.toJSON()});
@@ -78,6 +82,11 @@ var SpaceView = (function() {
     $.subscribe('relationship.delete', function(e, id){
       console.log('Deleting relationship', id);
       _this.deleteRelationship(id);
+    });
+
+    $.subscribe('meeting.create', function(e, data){
+      console.log('Creating meeting', data);
+      _this.addMeeting(data);
     });
 
   };

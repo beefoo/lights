@@ -9,6 +9,13 @@ var SpaceModel = (function() {
     this.parseData(this.props.data);
   };
 
+  SpaceModel.prototype.addMeeting = function(data){
+    var meeting = new MeetingModel(data);
+    this.props.meetings.push(meeting);
+    this.save();
+    return meeting;
+  };
+
   SpaceModel.prototype.addRelationship = function(data){
     var relationship = new RelationshipModel(data);
     this.props.relationships.push(relationship);

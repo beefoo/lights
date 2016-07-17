@@ -40,9 +40,10 @@ var RelationshipFormView = (function() {
     });
   };
 
-  RelationshipFormView.prototype.removeRelationship = function(id){
+  RelationshipFormView.prototype.removeRelationship = function(){
     if (!this.opt.relationship) return false;
 
+    var id = this.opt.relationship.id;
     $.publish('relationship.delete', id);
     this.opt.relationship = false;
     this.close();
@@ -58,7 +59,7 @@ var RelationshipFormView = (function() {
   };
 
   RelationshipFormView.prototype.submit = function(data){
-    if (this.opt.relationship && data.id.length){
+    if (this.opt.relationship && data.id){
       $.publish('relationship.update', data);
     } else {
       $.publish('relationship.create', data);

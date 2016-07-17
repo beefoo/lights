@@ -23,16 +23,12 @@ var MeetingFormView = (function() {
   };
 
   MeetingFormView.prototype.daysAgo = function(days){
+    var data = this.$el.find('.meeting-form').serializeObject();
+
     var d = new Date();
     d.setDate(d.getDate()-days);
+    data.date = d;
 
-    var method = this.opt.method;
-    var relationship = this.opt.relationship;
-    var data = {
-      date: d.getTime(),
-      relationship_id: relationship.id,
-      method: method
-    };
     this.submit(data);
   };
 
@@ -56,6 +52,21 @@ var MeetingFormView = (function() {
       _this.submit(data);
     });
 
+    this.$el.on('click', '.remove-meeting', function(e){
+      e.preventDefault();
+
+      _this.removeMeeting();
+    });
+
+  };
+
+  RelationshipFormView.prototype.removeMeeting = function(){
+    if (!this.opt.meeting) return false;
+
+    var id = this.opt.meeting.id;
+    $.publish('meeting.delete', id);
+    this.opt.relationship = false;
+    this.close();
   };
 
   MeetingFormView.prototype.render = function(){
@@ -63,7 +74,11 @@ var MeetingFormView = (function() {
   };
 
   MeetingFormView.prototype.submit = function(data){
-    $.publish('meeting.create', data);
+    if (this.opt.meeting && data.id){
+      $.publish('meeting.update', data);
+    } else {
+      $.publish('meeting.create', data);
+    }
 
     this.opt.meeting = data;
     this.close();

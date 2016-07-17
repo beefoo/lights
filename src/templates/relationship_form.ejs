@@ -20,9 +20,8 @@
 
   <% if (relationship) { %>
   <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>
+  <input name="id" type="hidden" value="<%= relationship.id %>" />
   <% } %>
-
-  <input name="id" type="hidden" value="<%= relationship ? relationship.id : '' %>" />
 
   <button type="submit">Submit</button>
 </form>

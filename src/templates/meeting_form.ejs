@@ -1,17 +1,35 @@
 <form class="meeting-form">
-  <h2>When is the last time you <%= method.verb %> <%= relationship.name %>?</h2>
+  <h2>
+    I
+    <select name="method">
+      <% _.each(methods, function(m){ %>
+        <option value="<%= m.value %>" <%= m.value==method.value ? "selected" : "" %>><%= m.verb_past %></option>
+      <% }) %>
+    </select>
+    <%= relationship.name %>
+  </h2>
 
+  <% if (meeting) { %>
+  <label for="date">On Date:</label>
+
+  <% } else { %>
   <button class="days-ago" days-ago="0">Today</button>
-
   <button class="days-ago" days-ago="1">Yesterday</button>
-
   <button class="days-ago" days-ago="2">2 Days Ago</button>
-
   <label for="date">Another Date:</label>
-  <input type="date" name="date" placeholder="mm/dd/yyyy">
+  <% } %>
+
+  <input type="date" name="date" placeholder="mm/dd/yyyy" value="<%= meeting ? meeting.date : '' %>">
+
+  <label for="note"><%= meeting ? 'Note: ' : 'Add A Note: ' %></label>
+  <textarea name="note"><%= meeting ? meeting.note : '' %></textarea>
+
+  <% if (meeting) { %>
+  <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>
+  <input name="id" type="hidden" value="<%= meeting.id %>" />
+  <% } %>
 
   <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />
-  <input type="hidden" name="method" value="<%= method.value %>" />
 
   <button type="submit">Submit</button>
 </form>
