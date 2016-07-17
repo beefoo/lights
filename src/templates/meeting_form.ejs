@@ -1,0 +1,17 @@
+<form class="meeting-form">
+  <h2>When is the last time you <%= method.verb %> <%= relationship.name %>?</h2>
+
+  <button class="days-ago" days-ago="0">Today</button>
+
+  <button class="days-ago" days-ago="1">Yesterday</button>
+
+  <button class="days-ago" days-ago="2">2 Days Ago</button>
+
+  <label for="date">Another Date:</label>
+  <input type="date" name="date" placeholder="mm/dd/yyyy">
+
+  <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />
+  <input type="hidden" name="method" value="<%= method.value %>" />
+
+  <button type="submit">Submit</button>
+</form>

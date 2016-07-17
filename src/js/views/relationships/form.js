@@ -3,22 +3,6 @@ var RelationshipFormView = (function() {
     var defaults = {
       el: '<div id="relationship-add">',
       template: _.template(TEMPLATES['relationship_form.ejs']),
-      methods: [
-        {value: 'in_person', label: 'In Person'},
-        {value: 'call', label: 'Phone / Video'},
-        {value: 'text', label: 'Text / Chat'},
-        {value: 'mail', label: 'Snail Mail'}
-      ],
-      rhythms: [
-        {value: 'week_1', label: 'Week'},
-        {value: 'week_2', label: '2 Weeks'},
-        {value: 'month_1', label: 'Month'},
-        {value: 'month_2', label: '2 Months'},
-        {value: 'month_3', label: '3 Months'},
-        {value: 'month_4', label: '4 Months'},
-        {value: 'month_6', label: '6 Months'},
-        {value: 'year_1', label: 'Year'}
-      ],
       relationship: false
     };
     this.opt = _.extend(defaults, options);

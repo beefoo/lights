@@ -149,7 +149,7 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.showForm = function(){
     var data = {relationship: this.opt.relationship};
-    $.publish('modals.open', [RelationshipFormView, data]);
+    $.publish('modals.open', [MeetingFormView, data]);
   };
 
   RelationshipView.prototype.update = function(data){
