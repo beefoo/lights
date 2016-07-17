@@ -31,6 +31,10 @@ var SpaceModel = (function() {
     }
   };
 
+  SpaceModel.prototype.deleteMeeting = function(id){
+    this.updateMeeting(id, {active: 0});
+  };
+
   SpaceModel.prototype.deleteRelationship = function(id){
     this.updateRelationship(id, {active: 0});
   };
@@ -106,6 +110,12 @@ var SpaceModel = (function() {
 
     // stringify
     return JSON.stringify(data);
+  };
+
+  SpaceModel.prototype.updateMeeting = function(id, data){
+    var r = _.find(this.props.meetings, function(r){ return r.id()==id; });
+    if (r) r.update(data);
+    this.save();
   };
 
   SpaceModel.prototype.updateRelationship = function(id, data){

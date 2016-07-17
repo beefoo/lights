@@ -6,15 +6,16 @@ var MeetingFormView = (function() {
       meeting: false,
       relationship: false
     };
-    this.opt = _.extend(defaults, options);
+    this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
     this.template = this.opt.template;
     this.loadListeners();
   }
 
   MeetingFormView.prototype.init = function(){
-    this.opt.method = this.opt.relationship ? this.opt.relationship.method || 'in_person';
-    this.opt.method = _.clone(this.opt.methods[this.opt.method]);
+    this.opt.method = this.opt.relationship ? this.opt.relationship.method : 'in_person';
+    this.opt.method = _.findWhere(this.opt.methods, {value: this.opt.method});
+
     this.render();
   };
 
@@ -60,7 +61,7 @@ var MeetingFormView = (function() {
 
   };
 
-  RelationshipFormView.prototype.removeMeeting = function(){
+  MeetingFormView.prototype.removeMeeting = function(){
     if (!this.opt.meeting) return false;
 
     var id = this.opt.meeting.id;

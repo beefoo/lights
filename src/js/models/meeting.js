@@ -12,7 +12,8 @@ var MeetingModel = (function() {
       id: 0,
       relationship_id: 0,
       date: '',
-      notes: ''
+      notes: '',
+      active: 1
     };
   };
 
@@ -33,9 +34,8 @@ var MeetingModel = (function() {
   MeetingModel.prototype._parseDate = function(value){
     var date = false;
 
-    if (value && _.isString(value) && value.length) value = parseInt(value);
-
-    if (value && _.isNumber(value)) date = new Date(value);
+    if (value && _.isString(value) && value.length) date = new Date(value);
+    else if (value && _.isNumber(value)) date = new Date(value);
 
     return date;
   };

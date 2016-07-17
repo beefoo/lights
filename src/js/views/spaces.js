@@ -31,6 +31,11 @@ var SpaceView = (function() {
     this.$relationshipViews.push(view);
   };
 
+  SpaceView.prototype.deleteMeeting = function(id){
+    // update space
+    var meeting = this.space.deleteMeeting(id);
+  };
+
   SpaceView.prototype.deleteRelationship = function(id){
     // update space
     var relationship = this.space.deleteRelationship(id);
@@ -89,6 +94,18 @@ var SpaceView = (function() {
       _this.addMeeting(data);
     });
 
+    $.subscribe('meeting.update', function(e, data){
+      console.log('Updating meeting', data);
+      var id = data.id;
+      data = _.omit(data, 'id');
+      _this.updateMeeting(id, data);
+    });
+
+    $.subscribe('meeting.delete', function(e, id){
+      console.log('Deleting meeting', id);
+      _this.deleteMeeting(id);
+    });
+
   };
 
   SpaceView.prototype.loadSpace = function(){
@@ -119,6 +136,11 @@ var SpaceView = (function() {
       });
     }
     this.$el.find('.relationships-wrapper').html($relationships);
+  };
+
+  SpaceView.prototype.updateMeeting = function(id, data){
+    // update space
+    var meeting = this.space.updateMeeting(id, data);
   };
 
   SpaceView.prototype.updateRelationship = function(id, data){

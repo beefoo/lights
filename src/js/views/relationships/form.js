@@ -5,7 +5,7 @@ var RelationshipFormView = (function() {
       template: _.template(TEMPLATES['relationship_form.ejs']),
       relationship: false
     };
-    this.opt = _.extend(defaults, options);
+    this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
     this.template = this.opt.template;
     this.loadListeners();
@@ -66,7 +66,8 @@ var RelationshipFormView = (function() {
     }
 
     this.opt.relationship = data;
-    this.close();
+    // show meeting form
+    $.publish('modals.open', [MeetingFormView, {relationship: this.opt.relationship}]);
   };
 
   return RelationshipFormView;

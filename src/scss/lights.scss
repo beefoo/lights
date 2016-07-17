@@ -10,6 +10,10 @@ html {
   color: $white;
 }
 
+button {
+  color: $black;
+}
+
 $nav-height: 40px;
 .nav {
   text-align: right;
@@ -146,9 +150,8 @@ form {
     margin-top: 1em;
   }
 
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
+  input,
+  textarea,
   select {
     display: block;
     margin: 0.5em 0 1em;
@@ -160,6 +163,23 @@ form {
     margin-top: 1em;
     max-width: 200px;
     color: $black;
+  }
+
+  h2 select {
+    display: inline-block;
+  }
+}
+
+.button-group {
+  @include clearfix();
+
+  button {
+    display: block;
+    float: left;
+  }
+
+  button:last-child {
+    float: right;
   }
 }
 
@@ -233,6 +253,15 @@ $modal-max-width: 600px;
       cursor: pointer;
       font-size: 2em;
     }
+  }
+
+  form {
+    margin: 0 auto;
+  }
+
+  .button-group {
+    margin-top: 1em;
+    padding-top: 1em;
   }
 
   // When screen isn't as wide as the modal anymore
