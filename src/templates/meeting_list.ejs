@@ -1,0 +1,18 @@
+<h2>Meetings with <%= relationship.name %></h2>
+
+<div class="meeting-list">
+  <% _.each(meetings, function(meeting){ %>
+    <div class="meeting">
+      <div class="date"><%= UTIL.formatDate(meeting.date) %> (<%= UTIL.timeAgo(meeting.date) %>)</div>
+      <% if (meeting.notes.length) { %>
+        <div class="notes"><%= meeting.notes %></div>
+      <% } %>
+      <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>
+    </div>
+  <% }) %>
+</div>
+
+<div class="button-group">
+  <button class="edit-relationship">Edit Settings</button>
+  <button class="add-meeting">Add New Meeting</button>
+</div>

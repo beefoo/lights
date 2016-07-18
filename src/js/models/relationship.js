@@ -44,7 +44,7 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.onUpdate = function(){
     // parse rhythm
-    this.props.rhythm = this._parseRhythmString(this.props.rhythm);
+    // this.props.rhythm = this._parseRhythmString(this.props.rhythm);
   };
 
   RelationshipModel.prototype.toJSON = function(){

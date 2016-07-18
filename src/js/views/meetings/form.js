@@ -4,7 +4,8 @@ var MeetingFormView = (function() {
       el: '<div id="meeting-add">',
       template: _.template(TEMPLATES['meeting_form.ejs']),
       meeting: false,
-      relationship: false
+      relationship: false,
+      meetings: []
     };
     this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
@@ -57,6 +58,18 @@ var MeetingFormView = (function() {
       e.preventDefault();
 
       _this.removeMeeting();
+    });
+
+    this.$el.on('click', '.edit-relationship', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [RelationshipFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.view-meetings', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
     });
 
   };

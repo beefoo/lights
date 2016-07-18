@@ -16,7 +16,7 @@ var ModalsView = (function() {
 
   ModalsView.prototype.closeModals = function() {
     if (this.activeModal) {
-      this.activeModal.remove && this.activeModal.remove();
+      this.activeModal.el && this.activeModal.el().remove();
       this.activeModal = false;
     }
     this.$el.removeClass('active').find('.modal-content').empty();

@@ -116,12 +116,14 @@ var SpaceModel = (function() {
     var r = _.find(this.props.meetings, function(r){ return r.id()==id; });
     if (r) r.update(data);
     this.save();
+    return r;
   };
 
   SpaceModel.prototype.updateRelationship = function(id, data){
     var r = _.find(this.props.relationships, function(r){ return r.id()==id; });
     if (r) r.update(data);
     this.save();
+    return r;
   };
 
   SpaceModel.prototype._collectionToArray = function(collection, fields){

@@ -21,6 +21,10 @@ var SpaceView = (function() {
 
   SpaceView.prototype.addMeeting = function(data){
     var meeting = this.space.addMeeting(data);
+    meeting = meeting.toJSON();
+
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.addMeeting(meeting);
   };
 
   SpaceView.prototype.addRelationship = function(data){
@@ -29,11 +33,18 @@ var SpaceView = (function() {
     this.$el.find('.empty').removeClass('active');
     this.$el.find('.relationships').append(view.el());
     this.$relationshipViews.push(view);
+
+    // show meeting form
+    $.publish('modals.open', [MeetingFormView, {relationship: relationship.toJSON()}]);
   };
 
   SpaceView.prototype.deleteMeeting = function(id){
     // update space
     var meeting = this.space.deleteMeeting(id);
+    meeting = meeting.toJSON();
+
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.deleteMeeting(id);
   };
 
   SpaceView.prototype.deleteRelationship = function(id){
@@ -127,9 +138,11 @@ var SpaceView = (function() {
     // render relationships
     var $relationships = $('<div class="relationships">');
     if (this.opt.space) {
+      var meetings = this.opt.space.meetings;
       _.each(this.opt.space.relationships, function(r){
         if (r.active) {
-          var view = new RelationshipView({relationship: r});
+          var rmeetings = _.where(meetings, {relationship_id: r.id});
+          var view = new RelationshipView({relationship: r, meetings: rmeetings});
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);
         }
@@ -141,6 +154,11 @@ var SpaceView = (function() {
   SpaceView.prototype.updateMeeting = function(id, data){
     // update space
     var meeting = this.space.updateMeeting(id, data);
+    meeting = meeting.toJSON();
+
+    // update view
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.updateMeeting(id, data);
   };
 
   SpaceView.prototype.updateRelationship = function(id, data){

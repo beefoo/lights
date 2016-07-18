@@ -19,10 +19,10 @@
   <label for="date">Another Date:</label>
   <% } %>
 
-  <input type="date" name="date" placeholder="mm/dd/yyyy" value="<%= meeting ? meeting.date : '' %>">
+  <input type="date" name="date" placeholder="yyyy-mm-dd" value="<%= meeting ? UTIL.formatDateInput(meeting.date) : '' %>">
 
-  <label for="note"><%= meeting ? 'Note: ' : 'Add A Note: ' %></label>
-  <textarea name="note"><%= meeting ? meeting.note : '' %></textarea>
+  <label for="notes"><%= meeting ? 'Note: ' : 'Add A Note: ' %></label>
+  <textarea name="notes"><%= meeting ? meeting.notes : '' %></textarea>
 
   <% if (meeting) { %>
   <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>
@@ -36,5 +36,7 @@
 
 <div class="button-group">
   <button class="edit-relationship">Edit Settings</button>
+  <% if (meetings && meetings.length) { %>
   <button class="view-meetings">View/Edit Past Meetings</button>
+  <% } %>
 </div>

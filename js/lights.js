@@ -76,45 +76,20 @@ $.fn.serializeObject = function()
 (function() {
   window.UTIL = {};
 
-  // Format seconds -> hh:mm:ss
-  UTIL.formatTime = function(seconds, dec) {
-    var s = seconds || 0,
-        h = parseInt(s / 3600) % 24,
-        m = parseInt(s / 60) % 60,
-        s = UTIL.round(s % 60, dec),
-        string;
-    // create format hh:mm:ss
-    string = (h > 0 ? h + ':' : '') + (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
-    // remove starting zeros
-    if (string[0] == '0') string = string.substring(1, string.length);
-    return string;
+  UTIL.formatDate = function(date) {
+    var d = new Date(date);
+
+    // format date
+    var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var str = days[d.getDay()] + ", " + months[d.getMonth()] + " " + d.getUTCDate() + ", " + d.getFullYear();
+
+    return str;
   };
 
-  UTIL.formatTimeMs = function(milliseconds, dec) {
-    return UTIL.formatTime(milliseconds*0.001, dec);
-  };
-
-  // Convert hh:mm:ss -> seconds
-  UTIL.getSeconds = function(string, dec) {
-    var parts = string.split(':').reverse(),
-        seconds = 0;
-    // go from hh:mm:ss to seconds
-    for (var i=parts.length-1; i>=0; i--) {
-      switch( i ) {
-        case 2: // hours
-          seconds += parseInt(parts[i]) * 60 * 60;
-          break;
-        case 1: // minutes
-          seconds += parseInt(parts[i]) * 60;
-          break;
-        case 0: // seconds
-          seconds += parseFloat(parts[i]);
-          break
-        default:
-          break;
-      }
-    }
-    return UTIL.round(seconds, dec);
+  UTIL.formatDateInput = function(date) {
+    var d = new Date(date);
+    return d.toISOString().slice(0,10);
   };
 
   // Linear interpolation
@@ -138,15 +113,58 @@ $.fn.serializeObject = function()
     return text;
   };
 
-  UTIL.randomNumber = function(length){
-    return Math.floor(Math.pow(10, length-1) + Math.random() * 9 * Math.pow(10, length-1));
-  };
-
   // Round to decimal
   UTIL.round = function(num, dec) {
     num = parseFloat(num);
     dec = dec || 0;
     return Math.round(num * Math.pow(10, dec)) / Math.pow(10, dec);
+  };
+
+  UTIL.timeAgo = function(date) {
+    // determine time ago
+    var d = new Date(date);
+    // account for time zone difference
+    d = new Date(d.getTime() + d.getTimezoneOffset()*60000);
+    var now = new Date();
+    // ignore hours
+    d.setHours(0,0,0,0);
+    now.setHours(0,0,0,0);
+    var diff = now.getTime() - d.getTime();
+    var day = 1000 * 60 * 60 * 24;
+    var days = diff / day;
+    var time_ago = "today";
+
+    if (days > (365 + 7)) time_ago = "over a year ago";
+    else if (days > (365 - 7)) time_ago = "about a year ago";
+    else if (days >= 2) {
+      // determine months
+      var monthDiff = now.getMonth() - d.getMonth();
+      var dateDiff = now.getUTCDate() - d.getUTCDate();
+      var months = 0;
+      if (monthDiff > 0 && dateDiff >= 0) {
+        months = monthDiff;
+        days = dateDiff;
+      }
+
+      // remaining weeks, days
+      var weeks = Math.floor(days / 7);
+      days = days % 7;
+
+      // build string
+      var units = [];
+      if (months > 1) units.push(months + " months");
+      else if (months > 0) units.push("one month");
+      if (weeks > 1) units.push(weeks + " weeks");
+      else if (weeks > 0) units.push("one week");
+      if (days > 1) units.push(days + " days");
+      else if (days > 0) units.push("one day");
+      time_ago = "about " + units.join(", ") + " ago";
+
+    } else if (days >= 1) {
+      time_ago = "yesterday";
+    }
+
+    return time_ago;
   };
 
 })();
@@ -155,9 +173,10 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["account.ejs"] = '<% i
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form forgot-form">    <p>Enter your email address and instructions will be sent to reset your password</p>    <input name="email" type="text" placeholder="Email" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<nav class="nav main" role="menubar">  <a href="#/" role="menuitem" class="nav-item">Home</a>  <% if (user) { %>    <a href="#/relationships/add" role="menuitem" class="nav-item add-relationship">Add Relationship</a>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a>  <% } %></nav><div class="message main" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_form.ejs"] = '<form class="meeting-form">  <h2>    I    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m.value %>" <%= m.value==method.value ? "selected" : "" %>><%= m.verb_past %></option>      <% }) %>    </select>    <%= relationship.name %>  </h2>  <% if (meeting) { %>  <label for="date">On Date:</label>  <% } else { %>  <button class="days-ago" days-ago="0">Today</button>  <button class="days-ago" days-ago="1">Yesterday</button>  <button class="days-ago" days-ago="2">2 Days Ago</button>  <label for="date">Another Date:</label>  <% } %>  <input type="date" name="date" placeholder="mm/dd/yyyy" value="<%= meeting ? meeting.date : \'\' %>">  <label for="note"><%= meeting ? \'Note: \' : \'Add A Note: \' %></label>  <textarea name="note"><%= meeting ? meeting.note : \'\' %></textarea>  <% if (meeting) { %>  <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>  <input name="id" type="hidden" value="<%= meeting.id %>" />  <% } %>  <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />  <button type="submit">Submit</button></form><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <button class="view-meetings">View/Edit Past Meetings</button></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_form.ejs"] = '<form class="meeting-form">  <h2>    I    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m.value %>" <%= m.value==method.value ? "selected" : "" %>><%= m.verb_past %></option>      <% }) %>    </select>    <%= relationship.name %>  </h2>  <% if (meeting) { %>  <label for="date">On Date:</label>  <% } else { %>  <button class="days-ago" days-ago="0">Today</button>  <button class="days-ago" days-ago="1">Yesterday</button>  <button class="days-ago" days-ago="2">2 Days Ago</button>  <label for="date">Another Date:</label>  <% } %>  <input type="date" name="date" placeholder="yyyy-mm-dd" value="<%= meeting ? UTIL.formatDateInput(meeting.date) : \'\' %>">  <label for="notes"><%= meeting ? \'Note: \' : \'Add A Note: \' %></label>  <textarea name="notes"><%= meeting ? meeting.notes : \'\' %></textarea>  <% if (meeting) { %>  <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>  <input name="id" type="hidden" value="<%= meeting.id %>" />  <% } %>  <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />  <button type="submit">Submit</button></form><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <% if (meetings && meetings.length) { %>  <button class="view-meetings">View/Edit Past Meetings</button>  <% } %></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_list.ejs"] = '<h2>Meetings with <%= relationship.name %></h2><div class="meeting-list">  <% _.each(meetings, function(meeting){ %>    <div class="meeting">      <div class="date"><%= UTIL.formatDate(meeting.date) %> (<%= UTIL.timeAgo(meeting.date) %>)</div>      <% if (meeting.notes.length) { %>        <div class="notes"><%= meeting.notes %></div>      <% } %>      <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>    </div>  <% }) %></div><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <button class="add-meeting">Add New Meeting</button></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light level<%= relationship ? relationship.level : \'\' %>"></div><div class="light flicker level<%= relationship ? relationship.level : \'\' %>"></div><div class="string"></div><div class="name"><%= relationship ? relationship.name : \'\' %></div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><div class="button-group">  <button class="view-meetings">View/Edit Past Meetings</button>  <button class="add-meeting">Add New Meeting</button></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><% if (relationship) { %>  <div class="button-group">    <button class="view-meetings">View/Edit Past Meetings</button>    <button class="add-meeting">Add New Meeting</button>  </div><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
@@ -169,7 +188,12 @@ var MeetingModel = (function() {
     this.init();
   }
 
-  MeetingModel.prototype.init = function(){};
+  MeetingModel.prototype.init = function(){
+    // create an id if not exists
+    if (!this.props.id) {
+      this.props.id = UTIL.makeId(16);
+    }
+  };
 
   MeetingModel.prototype.defaultProps = function(){
     return {
@@ -186,20 +210,34 @@ var MeetingModel = (function() {
     return _.keys(defaults);
   };
 
+  MeetingModel.prototype.id = function(){
+    return this.props.id;
+  };
+
   MeetingModel.prototype.onUpdate = function(){
     // parse date
-    this.props.date = this._parseDate(this.props.date);
+    // this.props.date = this._parseDate(this.props.date);
   };
 
   MeetingModel.prototype.toJSON = function(){
     return _.clone(this.props);
   };
 
+  MeetingModel.prototype.update = function(data){
+    var _this = this,
+        fields = this.fields();
+
+    _.each(fields, function(f){
+      if (data[f]) _this.props[f] = data[f];
+    });
+
+    this.onUpdate();
+  };
+
   MeetingModel.prototype._parseDate = function(value){
     var date = false;
 
-    if (value && _.isString(value) && value.length) date = new Date(value);
-    else if (value && _.isNumber(value)) date = new Date(value);
+    if (value && (_.isString(value) && value.length || _.isNumber(value))) date = new Date(value);
 
     return date;
   };
@@ -254,7 +292,7 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.onUpdate = function(){
     // parse rhythm
-    this.props.rhythm = this._parseRhythmString(this.props.rhythm);
+    // this.props.rhythm = this._parseRhythmString(this.props.rhythm);
   };
 
   RelationshipModel.prototype.toJSON = function(){
@@ -411,12 +449,14 @@ var SpaceModel = (function() {
     var r = _.find(this.props.meetings, function(r){ return r.id()==id; });
     if (r) r.update(data);
     this.save();
+    return r;
   };
 
   SpaceModel.prototype.updateRelationship = function(id, data){
     var r = _.find(this.props.relationships, function(r){ return r.id()==id; });
     if (r) r.update(data);
     this.save();
+    return r;
   };
 
   SpaceModel.prototype._collectionToArray = function(collection, fields){
@@ -666,7 +706,7 @@ var ModalsView = (function() {
 
   ModalsView.prototype.closeModals = function() {
     if (this.activeModal) {
-      this.activeModal.remove && this.activeModal.remove();
+      this.activeModal.el && this.activeModal.el().remove();
       this.activeModal = false;
     }
     this.$el.removeClass('active').find('.modal-content').empty();
@@ -707,7 +747,8 @@ var MeetingFormView = (function() {
       el: '<div id="meeting-add">',
       template: _.template(TEMPLATES['meeting_form.ejs']),
       meeting: false,
-      relationship: false
+      relationship: false,
+      meetings: []
     };
     this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
@@ -762,6 +803,18 @@ var MeetingFormView = (function() {
       _this.removeMeeting();
     });
 
+    this.$el.on('click', '.edit-relationship', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [RelationshipFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.view-meetings', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
   };
 
   MeetingFormView.prototype.removeMeeting = function(){
@@ -792,12 +845,67 @@ var MeetingFormView = (function() {
 
 })();
 
+var MeetingListView = (function() {
+  function MeetingListView(options) {
+    var defaults = {
+      el: '<div id="meeting-list">',
+      template: _.template(TEMPLATES['meeting_list.ejs']),
+      relationship: false,
+      meetings: []
+    };
+    this.opt = _.extend(defaults, CONFIG, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+    this.loadListeners();
+  }
+
+  MeetingListView.prototype.init = function(){
+    this.render();
+  };
+
+  MeetingListView.prototype.el = function(){
+    return this.$el;
+  };
+
+  MeetingListView.prototype.loadListeners = function(){
+    var _this = this;
+
+    this.$el.on('click', '.add-meeting', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [MeetingFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.edit-meeting', function(e){
+      e.preventDefault();
+
+      var meeting = _.findWhere(_this.opt.meetings, { id: $(this).attr('data-id') });
+      $.publish('modals.open', [MeetingFormView, {meetings: _this.opt.meetings, meeting: meeting, relationship: _this.opt.relationship}]);
+    });
+
+    this.$el.on('click', '.edit-relationship', function(e){
+      e.preventDefault();
+
+      $.publish('modals.open', [RelationshipFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+  };
+
+  MeetingListView.prototype.render = function(){
+    this.$el.html(this.template(this.opt));
+  };
+
+  return MeetingListView;
+
+})();
+
 var RelationshipFormView = (function() {
   function RelationshipFormView(options) {
     var defaults = {
       el: '<div id="relationship-add">',
       template: _.template(TEMPLATES['relationship_form.ejs']),
-      relationship: false
+      relationship: false,
+      meetings: []
     };
     this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
@@ -829,8 +937,17 @@ var RelationshipFormView = (function() {
 
     this.$el.on('click', '.remove-relationship', function(e){
       e.preventDefault();
-
       _this.removeRelationship();
+    });
+
+    this.$el.on('click', '.add-meeting', function(e){
+      e.preventDefault();
+      if (_this.opt.relationship) $.publish('modals.open', [MeetingFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.view-meetings', function(e){
+      e.preventDefault();
+      if (_this.opt.relationship) $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
     });
   };
 
@@ -847,21 +964,12 @@ var RelationshipFormView = (function() {
     this.$el.html(this.template(this.opt));
   };
 
-  RelationshipFormView.prototype.remove = function(){
-    this.$el.off('submit', '.relationship-form');
-    this.$el.off('click', '.remove-relationship');
-  };
-
   RelationshipFormView.prototype.submit = function(data){
     if (this.opt.relationship && data.id){
       $.publish('relationship.update', data);
     } else {
       $.publish('relationship.create', data);
     }
-
-    this.opt.relationship = data;
-    // show meeting form
-    $.publish('modals.open', [MeetingFormView, {relationship: this.opt.relationship}]);
   };
 
   return RelationshipFormView;
@@ -873,6 +981,7 @@ var RelationshipView = (function() {
     var defaults = {
       template: _.template(TEMPLATES['relationship.ejs']),
       relationship: false,
+      meetings: [],
       widthRange: [20, 50],
       aspectRatio: (480/662)
     };
@@ -892,6 +1001,14 @@ var RelationshipView = (function() {
     this.setWindowSize();
     this.render();
     this.loadListeners();
+  };
+
+  RelationshipView.prototype.addMeeting = function(meeting){
+    this.opt.meetings.push(meeting);
+  };
+
+  RelationshipView.prototype.deleteMeeting = function(id){
+    this.opt.meetings = _.reject(this.opt.meetings, function(m){ return m.id==id; });
   };
 
   RelationshipView.prototype.el = function(){
@@ -1018,13 +1135,20 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.showForm = function(){
-    var data = {relationship: this.opt.relationship};
+    var data = {relationship: this.opt.relationship, meetings: this.opt.meetings};
     $.publish('modals.open', [MeetingFormView, data]);
   };
 
   RelationshipView.prototype.update = function(data){
     this.opt.relationship = _.extend({}, this.opt.relationship, data);
     this.render();
+  };
+
+  RelationshipView.prototype.updateMeeting = function(id, data){
+    this.opt.meetings = _.map(this.opt.meetings, function(m){
+      if (m.id==id) return _.extend({}, m, data);
+      else return m;
+    });
   };
 
   RelationshipView.prototype.updatePosition = function(){
@@ -1166,6 +1290,10 @@ var SpaceView = (function() {
 
   SpaceView.prototype.addMeeting = function(data){
     var meeting = this.space.addMeeting(data);
+    meeting = meeting.toJSON();
+
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.addMeeting(meeting);
   };
 
   SpaceView.prototype.addRelationship = function(data){
@@ -1174,11 +1302,18 @@ var SpaceView = (function() {
     this.$el.find('.empty').removeClass('active');
     this.$el.find('.relationships').append(view.el());
     this.$relationshipViews.push(view);
+
+    // show meeting form
+    $.publish('modals.open', [MeetingFormView, {relationship: relationship.toJSON()}]);
   };
 
   SpaceView.prototype.deleteMeeting = function(id){
     // update space
     var meeting = this.space.deleteMeeting(id);
+    meeting = meeting.toJSON();
+
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.deleteMeeting(id);
   };
 
   SpaceView.prototype.deleteRelationship = function(id){
@@ -1272,9 +1407,11 @@ var SpaceView = (function() {
     // render relationships
     var $relationships = $('<div class="relationships">');
     if (this.opt.space) {
+      var meetings = this.opt.space.meetings;
       _.each(this.opt.space.relationships, function(r){
         if (r.active) {
-          var view = new RelationshipView({relationship: r});
+          var rmeetings = _.where(meetings, {relationship_id: r.id});
+          var view = new RelationshipView({relationship: r, meetings: rmeetings});
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);
         }
@@ -1286,6 +1423,11 @@ var SpaceView = (function() {
   SpaceView.prototype.updateMeeting = function(id, data){
     // update space
     var meeting = this.space.updateMeeting(id, data);
+    meeting = meeting.toJSON();
+
+    // update view
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
+    if (view) view.updateMeeting(id, data);
   };
 
   SpaceView.prototype.updateRelationship = function(id, data){

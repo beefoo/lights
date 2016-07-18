@@ -3,7 +3,8 @@ var RelationshipFormView = (function() {
     var defaults = {
       el: '<div id="relationship-add">',
       template: _.template(TEMPLATES['relationship_form.ejs']),
-      relationship: false
+      relationship: false,
+      meetings: []
     };
     this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
@@ -35,8 +36,17 @@ var RelationshipFormView = (function() {
 
     this.$el.on('click', '.remove-relationship', function(e){
       e.preventDefault();
-
       _this.removeRelationship();
+    });
+
+    this.$el.on('click', '.add-meeting', function(e){
+      e.preventDefault();
+      if (_this.opt.relationship) $.publish('modals.open', [MeetingFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.view-meetings', function(e){
+      e.preventDefault();
+      if (_this.opt.relationship) $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
     });
   };
 
@@ -53,21 +63,12 @@ var RelationshipFormView = (function() {
     this.$el.html(this.template(this.opt));
   };
 
-  RelationshipFormView.prototype.remove = function(){
-    this.$el.off('submit', '.relationship-form');
-    this.$el.off('click', '.remove-relationship');
-  };
-
   RelationshipFormView.prototype.submit = function(data){
     if (this.opt.relationship && data.id){
       $.publish('relationship.update', data);
     } else {
       $.publish('relationship.create', data);
     }
-
-    this.opt.relationship = data;
-    // show meeting form
-    $.publish('modals.open', [MeetingFormView, {relationship: this.opt.relationship}]);
   };
 
   return RelationshipFormView;

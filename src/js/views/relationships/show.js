@@ -3,6 +3,7 @@ var RelationshipView = (function() {
     var defaults = {
       template: _.template(TEMPLATES['relationship.ejs']),
       relationship: false,
+      meetings: [],
       widthRange: [20, 50],
       aspectRatio: (480/662)
     };
@@ -22,6 +23,14 @@ var RelationshipView = (function() {
     this.setWindowSize();
     this.render();
     this.loadListeners();
+  };
+
+  RelationshipView.prototype.addMeeting = function(meeting){
+    this.opt.meetings.push(meeting);
+  };
+
+  RelationshipView.prototype.deleteMeeting = function(id){
+    this.opt.meetings = _.reject(this.opt.meetings, function(m){ return m.id==id; });
   };
 
   RelationshipView.prototype.el = function(){
@@ -148,13 +157,20 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.showForm = function(){
-    var data = {relationship: this.opt.relationship};
+    var data = {relationship: this.opt.relationship, meetings: this.opt.meetings};
     $.publish('modals.open', [MeetingFormView, data]);
   };
 
   RelationshipView.prototype.update = function(data){
     this.opt.relationship = _.extend({}, this.opt.relationship, data);
     this.render();
+  };
+
+  RelationshipView.prototype.updateMeeting = function(id, data){
+    this.opt.meetings = _.map(this.opt.meetings, function(m){
+      if (m.id==id) return _.extend({}, m, data);
+      else return m;
+    });
   };
 
   RelationshipView.prototype.updatePosition = function(){
