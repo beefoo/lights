@@ -39,14 +39,14 @@ var CONFIG = {
     {value: 'mail', label: 'Snail Mail', verb_past: 'wrote', verb: 'write'}
   ],
   rhythms: [
-    {value: 'week_1', label: 'Week'},
-    {value: 'week_2', label: '2 Weeks'},
-    {value: 'month_1', label: 'Month'},
-    {value: 'month_2', label: '2 Months'},
-    {value: 'month_3', label: '3 Months'},
-    {value: 'month_4', label: '4 Months'},
-    {value: 'month_6', label: '6 Months'},
-    {value: 'year_1', label: 'Year'}
+    {value: 'week_1', label: 'One Week'},
+    {value: 'week_2', label: 'Two Weeks'},
+    {value: 'month_1', label: 'One Month'},
+    {value: 'month_2', label: 'Two Months'},
+    {value: 'month_3', label: 'Three Months'},
+    {value: 'month_4', label: 'Four Months'},
+    {value: 'month_6', label: 'Six Months'},
+    {value: 'year_1', label: 'One Year'}
   ]
 };
 
@@ -189,6 +189,7 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_form.ejs"] = 
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_list.ejs"] = '<h2>Meetings with <%= relationship.name %></h2><div class="meeting-list">  <% _.each(meetings, function(meeting){ %>    <div class="meeting">      <div class="date"><%= UTIL.formatDate(meeting.date) %> (<%= UTIL.timeAgo(meeting.date) %>)</div>      <% if (meeting.notes.length) { %>        <div class="notes"><%= meeting.notes %></div>      <% } %>      <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>    </div>  <% }) %></div><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <button class="add-meeting">Add New Meeting</button></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light level<%= level %>"></div><div class="light flicker level<%= level %>"></div><div class="string"></div><div class="name"><%= relationship ? relationship.name : \'\' %></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><% if (relationship) { %>  <div class="button-group">    <button class="view-meetings">View/Edit Past Meetings</button>    <button class="add-meeting">Add New Meeting</button>  </div><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_options.ejs"] = '<h2><%= relationship.name %></h2><% if (last_meeting) { %><p>Last <%= last_meeting.method.verb_past %>: <%= UTIL.formatDate(last_meeting.date) %> (<%= UTIL.timeAgo(last_meeting.date) %>)</p><% } %><% if (rhythm) { %><p>Rhythm: <%= rhythm.label %></p><% } %><div class="button-group">  <button class="add-meeting">Add New Meeting</button>  <button class="edit-relationship">Edit Settings</button>  <button class="view-meetings">View/Edit Past Meetings</button></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signup.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signup-form">    <input name="email" type="email" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>  </form><% } %>';
@@ -211,6 +212,7 @@ var MeetingModel = (function() {
     return {
       id: 0,
       relationship_id: 0,
+      method: 'in_person',
       date: '',
       notes: '',
       active: 1
@@ -295,16 +297,22 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
-  RelationshipModel.prototype.getLevel = function(meetings){
+  RelationshipModel.prototype.getLastMeeting = function(meetings){
     // sort dates descending order
-    var dates = _.map(meetings, function(m){ return UTIL.normalizeDate(m.date); });
-    dates = _.sortBy(dates, function(d){ return -d.getTime(); });
+    var meetings = _.map(meetings, function(m){ return _.extend({},m,{date: UTIL.normalizeDate(m.date)}); });
+    meetings = _.sortBy(meetings, function(m){ return -m.date.getTime(); });
 
     // require at least one meeting
-    if (!dates.length) return 1;
+    if (!meetings.length) return false;
 
+    return meetings[0];
+  };
+
+  RelationshipModel.prototype.getLevel = function(meetings){
     // find the difference between now and last meeting
-    var date = dates[0];
+    var meeting = this.getLastMeeting(meetings);
+    if (!meeting) return 1;
+    var date = meeting.date;
     var now = new Date();
     var diff = now.getTime() - date.getTime();
     var diffDays = diff / (1000*60*60*24);
@@ -1034,6 +1042,73 @@ var RelationshipFormView = (function() {
 
 })();
 
+var RelationshipOptionsView = (function() {
+  function RelationshipOptionsView(options) {
+    var defaults = {
+      el: '<div id="relationship-options">',
+      template: _.template(TEMPLATES['relationship_options.ejs']),
+      relationship: false,
+      meetings: [],
+      last_meeting: false,
+      rhythm: false
+    };
+    this.opt = _.extend(defaults, CONFIG, options);
+    this.$el = $(this.opt.el);
+    this.template = this.opt.template;
+    this.loadListeners();
+  }
+
+  RelationshipOptionsView.prototype.init = function(){
+    // determine rhythm
+    var rhythm_value = this.opt.relationship.rhythm;
+    this.opt.rhythm = _.findWhere(this.opt.rhythms, {value: rhythm_value});
+
+    this.relationshipModel = new RelationshipModel(this.opt.relationship);
+
+    this.setLastMeeting();
+
+    this.render();
+  };
+
+  RelationshipOptionsView.prototype.el = function(){
+    return this.$el;
+  };
+
+  RelationshipOptionsView.prototype.loadListeners = function(){
+    var _this = this;
+
+    this.$el.on('click', '.edit-relationship', function(e){
+      e.preventDefault();
+      $.publish('modals.open', [RelationshipFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.add-meeting', function(e){
+      e.preventDefault();
+      $.publish('modals.open', [MeetingFormView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+
+    this.$el.on('click', '.view-meetings', function(e){
+      e.preventDefault();
+      $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
+    });
+  };
+
+  RelationshipOptionsView.prototype.render = function(){
+    this.$el.html(this.template(this.opt));
+  };
+
+  RelationshipOptionsView.prototype.setLastMeeting = function(){
+    var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
+    if (!lastMeeting) return false;
+
+    this.opt.last_meeting = lastMeeting
+    this.opt.last_meeting.method = _.findWhere(this.opt.methods, {value: lastMeeting.method});
+  };
+
+  return RelationshipOptionsView;
+
+})();
+
 var RelationshipView = (function() {
   function RelationshipView(options) {
     var defaults = {
@@ -1043,7 +1118,7 @@ var RelationshipView = (function() {
       widthRange: [20, 50],
       aspectRatio: (480/662)
     };
-    this.opt = _.extend(defaults, options);
+    this.opt = _.extend(defaults, CONFIG, options);
 
     this.init();
   }
@@ -1173,9 +1248,17 @@ var RelationshipView = (function() {
     var r = this.relationshipModel.toJSON();
     var aspectRatio = this.opt.aspectRatio;
     var w = this.getWidth(r.top);
+    var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
+    var title = r.name;
 
-    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
+    if (lastMeeting) {
+      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
+      title += " - Last " + lastMethod.verb_past + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
+    }
 
+    this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
+
+    this.$el.attr('title', title);
     this.$el.css({
       width: w + 'vw',
       height: (w * aspectRatio) + 'vw',
@@ -1195,7 +1278,7 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.showForm = function(){
     var data = {relationship: this.relationshipModel.toJSON(), meetings: this.opt.meetings};
-    $.publish('modals.open', [MeetingFormView, data]);
+    $.publish('modals.open', [RelationshipOptionsView, data]);
   };
 
   RelationshipView.prototype.update = function(data){

@@ -7,7 +7,7 @@ var RelationshipView = (function() {
       widthRange: [20, 50],
       aspectRatio: (480/662)
     };
-    this.opt = _.extend(defaults, options);
+    this.opt = _.extend(defaults, CONFIG, options);
 
     this.init();
   }
@@ -137,9 +137,17 @@ var RelationshipView = (function() {
     var r = this.relationshipModel.toJSON();
     var aspectRatio = this.opt.aspectRatio;
     var w = this.getWidth(r.top);
+    var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
+    var title = r.name;
 
-    this.$el = this.$el || $('<a href="#/relationships/edit" class="relationship" data-id="'+r.id+'"></a>');
+    if (lastMeeting) {
+      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
+      title += " - Last " + lastMethod.verb_past + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
+    }
 
+    this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
+
+    this.$el.attr('title', title);
     this.$el.css({
       width: w + 'vw',
       height: (w * aspectRatio) + 'vw',
@@ -159,7 +167,7 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.showForm = function(){
     var data = {relationship: this.relationshipModel.toJSON(), meetings: this.opt.meetings};
-    $.publish('modals.open', [MeetingFormView, data]);
+    $.publish('modals.open', [RelationshipOptionsView, data]);
   };
 
   RelationshipView.prototype.update = function(data){

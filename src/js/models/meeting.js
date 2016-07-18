@@ -16,6 +16,7 @@ var MeetingModel = (function() {
     return {
       id: 0,
       relationship_id: 0,
+      method: 'in_person',
       date: '',
       notes: '',
       active: 1

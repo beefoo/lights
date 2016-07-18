@@ -34,16 +34,22 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
-  RelationshipModel.prototype.getLevel = function(meetings){
+  RelationshipModel.prototype.getLastMeeting = function(meetings){
     // sort dates descending order
-    var dates = _.map(meetings, function(m){ return UTIL.normalizeDate(m.date); });
-    dates = _.sortBy(dates, function(d){ return -d.getTime(); });
+    var meetings = _.map(meetings, function(m){ return _.extend({},m,{date: UTIL.normalizeDate(m.date)}); });
+    meetings = _.sortBy(meetings, function(m){ return -m.date.getTime(); });
 
     // require at least one meeting
-    if (!dates.length) return 1;
+    if (!meetings.length) return false;
 
+    return meetings[0];
+  };
+
+  RelationshipModel.prototype.getLevel = function(meetings){
     // find the difference between now and last meeting
-    var date = dates[0];
+    var meeting = this.getLastMeeting(meetings);
+    if (!meeting) return 1;
+    var date = meeting.date;
     var now = new Date();
     var diff = now.getTime() - date.getTime();
     var diffDays = diff / (1000*60*60*24);

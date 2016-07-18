@@ -1,0 +1,15 @@
+<h2><%= relationship.name %></h2>
+
+<% if (last_meeting) { %>
+<p>Last <%= last_meeting.method.verb_past %>: <%= UTIL.formatDate(last_meeting.date) %> (<%= UTIL.timeAgo(last_meeting.date) %>)</p>
+<% } %>
+
+<% if (rhythm) { %>
+<p>Rhythm: <%= rhythm.label %></p>
+<% } %>
+
+<div class="button-group">
+  <button class="add-meeting">Add New Meeting</button>
+  <button class="edit-relationship">Edit Settings</button>
+  <button class="view-meetings">View/Edit Past Meetings</button>
+</div>
