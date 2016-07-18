@@ -113,6 +113,13 @@ $.fn.serializeObject = function()
     return text;
   };
 
+  UTIL.normalizeDate = function(date){
+    var d = new Date(date);
+    // account for time zone difference
+    d = new Date(d.getTime() + d.getTimezoneOffset()*60000);
+    return d;
+  };
+
   // Round to decimal
   UTIL.round = function(num, dec) {
     num = parseFloat(num);
@@ -122,9 +129,7 @@ $.fn.serializeObject = function()
 
   UTIL.timeAgo = function(date) {
     // determine time ago
-    var d = new Date(date);
-    // account for time zone difference
-    d = new Date(d.getTime() + d.getTimezoneOffset()*60000);
+    var d = UTIL.normalizeDate(date);
     var now = new Date();
     // ignore hours
     d.setHours(0,0,0,0);
@@ -860,6 +865,10 @@ var MeetingListView = (function() {
   }
 
   MeetingListView.prototype.init = function(){
+    this.opt.meetings = _.sortBy(this.opt.meetings, function(m){
+      var d = new Date(m);
+      return -d.getTime();
+    });
     this.render();
   };
 

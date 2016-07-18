@@ -13,6 +13,10 @@ var MeetingListView = (function() {
   }
 
   MeetingListView.prototype.init = function(){
+    this.opt.meetings = _.sortBy(this.opt.meetings, function(m){
+      var d = new Date(m);
+      return -d.getTime();
+    });
     this.render();
   };
 
