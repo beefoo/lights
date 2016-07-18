@@ -40,6 +40,13 @@ $.fn.serializeObject = function()
     return a + (b-a)*t;
   };
 
+  // Limit a given number if it is outside of given range.
+  UTIL.lim = function(n, n0, n1) {
+    if (n < n0) { return n0; }
+    else if (n >= n1) { return n1; }
+    else { return n; }
+  };
+
   // Make a random id
   UTIL.makeId = function(length){
     var text = "",
@@ -54,6 +61,11 @@ $.fn.serializeObject = function()
       }
     }
     return text;
+  };
+
+  // Takes a value as well as an upper and lower limit, and returns a ratio 0 to 1
+  UTIL.norm = function(a, a0, a1) {
+    return UTIL.lim((a-a0)/(a1-a0), 0, 1);
   };
 
   UTIL.normalizeDate = function(date){

@@ -15,10 +15,10 @@ var RelationshipView = (function() {
   RelationshipView.prototype.init = function(){
     this.template = this.opt.template;
 
-    // this.relationshipModel = false;
-    // if (this.opt.relationship) {
-    //   this.relationshipModel = new RelationshipModel(this.opt.relationship);
-    // }
+    this.relationshipModel = false;
+    if (this.opt.relationship) {
+      this.relationshipModel = new RelationshipModel(this.opt.relationship);
+    }
 
     this.setWindowSize();
     this.render();
@@ -27,10 +27,12 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.addMeeting = function(meeting){
     this.opt.meetings.push(meeting);
+    this.render();
   };
 
   RelationshipView.prototype.deleteMeeting = function(id){
     this.opt.meetings = _.reject(this.opt.meetings, function(m){ return m.id==id; });
+    this.render();
   };
 
   RelationshipView.prototype.el = function(){
@@ -68,7 +70,7 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.id = function(){
-    return this.opt.relationship ? this.opt.relationship.id : '';
+    return this.relationshipModel ? this.relationshipModel.id() : '';
   };
 
   RelationshipView.prototype.loadListeners = function(){
@@ -118,7 +120,6 @@ var RelationshipView = (function() {
     var x = pos.x + delta.x;
     var y = pos.y + delta.y;
     var w = this.getWidthPx(y);
-    var r = this.opt.relationship;
     var aspectRatio = this.opt.aspectRatio;
     this.$el.css({
       left: x + 'px',
@@ -133,7 +134,7 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.render = function(){
-    var r = this.opt.relationship;
+    var r = this.relationshipModel.toJSON();
     var aspectRatio = this.opt.aspectRatio;
     var w = this.getWidth(r.top);
 
@@ -146,8 +147,8 @@ var RelationshipView = (function() {
       left: r.left + 'vw'
     });
 
-    // this.opt.relationship.level = 0;
-
+    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
+    this.opt.relationship = r;
     this.$el.html(this.template(this.opt));
   };
 
@@ -157,12 +158,12 @@ var RelationshipView = (function() {
   };
 
   RelationshipView.prototype.showForm = function(){
-    var data = {relationship: this.opt.relationship, meetings: this.opt.meetings};
+    var data = {relationship: this.relationshipModel.toJSON(), meetings: this.opt.meetings};
     $.publish('modals.open', [MeetingFormView, data]);
   };
 
   RelationshipView.prototype.update = function(data){
-    this.opt.relationship = _.extend({}, this.opt.relationship, data);
+    this.relationshipModel.update(data);
     this.render();
   };
 
@@ -171,10 +172,11 @@ var RelationshipView = (function() {
       if (m.id==id) return _.extend({}, m, data);
       else return m;
     });
+    this.render();
   };
 
   RelationshipView.prototype.updatePosition = function(){
-    var r = this.opt.relationship;
+    var r = this.relationshipModel;
     var $el = this.$el;
     var vw = this.windowWidth;
     var vh = this.windowHeight;
@@ -182,7 +184,7 @@ var RelationshipView = (function() {
     var y = parseFloat($el.css('top'));
     var z = parseFloat($el.width());
     $.publish('relationship.update', {
-      id: r.id,
+      id: r.id(),
       left: (x/vw*100),
       top: (y/vh*100),
       width: (z/vw*100)

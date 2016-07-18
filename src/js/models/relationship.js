@@ -34,6 +34,59 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
+  RelationshipModel.prototype.getLevel = function(meetings){
+    // sort dates descending order
+    var dates = _.map(meetings, function(m){ return UTIL.normalizeDate(m.date); });
+    dates = _.sortBy(dates, function(d){ return -d.getTime(); });
+
+    // require at least one meeting
+    if (!dates.length) return 1;
+
+    // find the difference between now and last meeting
+    var date = dates[0];
+    var now = new Date();
+    var diff = now.getTime() - date.getTime();
+    var diffDays = diff / (1000*60*60*24);
+
+    // compare to intended rhythm
+    var rhythm = this.getRhythm();
+    var unitDays = 1;
+    switch (rhythm.unit) {
+      case 'year':
+        unitDays = 365;
+        break;
+      case 'month':
+        unitDays = 365/12;
+        break;
+      case 'week':
+        unitDays = 7;
+        break;
+      default:
+        break;
+    }
+    var rhythmDays = rhythm.amount * unitDays;
+    var amount = UTIL.lim(diffDays / rhythmDays, 0, 1);
+    var level = Math.round(UTIL.lerp(7, 0, amount)) + 1;
+
+    return level;
+  };
+
+  RelationshipModel.prototype.getRhythm = function(){
+    if (!this.props.rhythm || !this.props.rhythm.length) return false;
+
+    var parts = this.props.rhythm.split('_');
+    var rhythm = false;
+
+    if (parts.length==2) {
+      rhythm = {
+        unit: parts[0],
+        amount: parseInt(parts[1])
+      }
+    }
+
+    return rhythm;
+  };
+
   RelationshipModel.prototype.id = function(){
     return this.props.id;
   };
@@ -43,8 +96,7 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.onUpdate = function(){
-    // parse rhythm
-    // this.props.rhythm = this._parseRhythmString(this.props.rhythm);
+
   };
 
   RelationshipModel.prototype.toJSON = function(){
@@ -60,23 +112,6 @@ var RelationshipModel = (function() {
     });
 
     this.onUpdate();
-  };
-
-  RelationshipModel.prototype._parseRhythmString = function(str){
-    if (!str) return false;
-    if (_.isObject(str)) return str;
-
-    var parts = str.split('_');
-    var rhythm = false;
-
-    if (parts.length==2) {
-      rhythm = {
-        unit: parts[0],
-        amount: parseInt(parts[1])
-      }
-    }
-
-    return rhythm;
   };
 
   return RelationshipModel;
