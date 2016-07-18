@@ -165,6 +165,14 @@ form {
     color: $black;
   }
 
+  button.active {
+    &:after {
+      content: " \2713";
+      margin-left: 4px;
+      display: inline-block;
+    }
+  }
+
   h2 select {
     display: inline-block;
   }

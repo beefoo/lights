@@ -66,6 +66,8 @@ var RelationshipFormView = (function() {
   RelationshipFormView.prototype.submit = function(data){
     if (this.opt.relationship && data.id){
       $.publish('relationship.update', data);
+      this.close();
+
     } else {
       $.publish('relationship.create', data);
     }

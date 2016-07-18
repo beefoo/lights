@@ -822,9 +822,11 @@ var MeetingFormView = (function() {
 
     var d = new Date();
     d.setDate(d.getDate()-days);
-    data.date = d;
 
-    this.submit(data);
+    this.$el.find('.days-ago').removeClass('active');
+    this.$el.find('.days-ago[days-ago="'+days+'"]').addClass('active');
+    var dateString = d.toISOString().slice(0, 10);
+    this.$el.find('input[name="date"]').val(dateString);
   };
 
   MeetingFormView.prototype.el = function(){
@@ -1021,6 +1023,8 @@ var RelationshipFormView = (function() {
   RelationshipFormView.prototype.submit = function(data){
     if (this.opt.relationship && data.id){
       $.publish('relationship.update', data);
+      this.close();
+
     } else {
       $.publish('relationship.create', data);
     }
