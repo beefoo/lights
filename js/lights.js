@@ -237,10 +237,11 @@ var MeetingModel = (function() {
 
   MeetingModel.prototype.update = function(data){
     var _this = this,
+        dataFields = _.keys(data),
         fields = this.fields();
 
     _.each(fields, function(f){
-      if (data[f]) _this.props[f] = data[f];
+      if (_.contains(dataFields, f)) _this.props[f] = data[f];
     });
 
     this.onUpdate();
@@ -365,10 +366,11 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.update = function(data){
     var _this = this,
+        dataFields = _.keys(data),
         fields = this.fields();
 
     _.each(fields, function(f){
-      if (data[f]) _this.props[f] = data[f];
+      if (_.contains(dataFields, f)) _this.props[f] = data[f];
     });
 
     this.onUpdate();
@@ -412,11 +414,11 @@ var SpaceModel = (function() {
   };
 
   SpaceModel.prototype.deleteMeeting = function(id){
-    this.updateMeeting(id, {active: 0});
+    return this.updateMeeting(id, {active: 0});
   };
 
   SpaceModel.prototype.deleteRelationship = function(id){
-    this.updateRelationship(id, {active: 0});
+    return this.updateRelationship(id, {active: 0});
   };
 
   SpaceModel.prototype.parseData = function(data){
@@ -495,6 +497,7 @@ var SpaceModel = (function() {
   SpaceModel.prototype.updateMeeting = function(id, data){
     var r = _.find(this.props.meetings, function(r){ return r.id()==id; });
     if (r) r.update(data);
+
     this.save();
     return r;
   };
@@ -1463,7 +1466,7 @@ var SpaceView = (function() {
       var meetings = this.opt.space.meetings;
       _.each(this.opt.space.relationships, function(r){
         if (r.active) {
-          var rmeetings = _.where(meetings, {relationship_id: r.id});
+          var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
           var view = new RelationshipView({relationship: r, meetings: rmeetings});
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);

@@ -32,11 +32,11 @@ var SpaceModel = (function() {
   };
 
   SpaceModel.prototype.deleteMeeting = function(id){
-    this.updateMeeting(id, {active: 0});
+    return this.updateMeeting(id, {active: 0});
   };
 
   SpaceModel.prototype.deleteRelationship = function(id){
-    this.updateRelationship(id, {active: 0});
+    return this.updateRelationship(id, {active: 0});
   };
 
   SpaceModel.prototype.parseData = function(data){
@@ -115,6 +115,7 @@ var SpaceModel = (function() {
   SpaceModel.prototype.updateMeeting = function(id, data){
     var r = _.find(this.props.meetings, function(r){ return r.id()==id; });
     if (r) r.update(data);
+
     this.save();
     return r;
   };

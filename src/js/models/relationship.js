@@ -105,10 +105,11 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.update = function(data){
     var _this = this,
+        dataFields = _.keys(data),
         fields = this.fields();
 
     _.each(fields, function(f){
-      if (data[f]) _this.props[f] = data[f];
+      if (_.contains(dataFields, f)) _this.props[f] = data[f];
     });
 
     this.onUpdate();

@@ -141,7 +141,7 @@ var SpaceView = (function() {
       var meetings = this.opt.space.meetings;
       _.each(this.opt.space.relationships, function(r){
         if (r.active) {
-          var rmeetings = _.where(meetings, {relationship_id: r.id});
+          var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
           var view = new RelationshipView({relationship: r, meetings: rmeetings});
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);
