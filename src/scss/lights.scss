@@ -172,7 +172,14 @@ form {
     display: block;
     margin-top: 1em;
     max-width: 200px;
-    color: $black;
+    color: $white;
+    padding: 5px 10px;
+    border: 0;
+    background: $grayDarker;
+
+    &:hover {
+      background: $grayDark;
+    }
   }
 
   button.active {
