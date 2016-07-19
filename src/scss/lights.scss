@@ -29,6 +29,8 @@ $nav-height: 40px;
     padding: 0 0.6em;
     height: $nav-height;
     line-height: $nav-height;
+    text-transform: uppercase;
+    font-size: 0.8em;
   }
 }
 
@@ -61,6 +63,11 @@ $nav-height: 40px;
   bottom: 0;
   overflow: hidden;
   z-index: 1;
+}
+
+.intro {
+  padding: 30px;
+  text-align: center;
 }
 
 .relationships-wrapper {
@@ -156,6 +163,9 @@ form {
     display: block;
     margin: 0.5em 0 1em;
     color: $black;
+    border: 0;
+    outline: none;
+    padding: 5px 10px;
   }
 
   button {
@@ -176,6 +186,11 @@ form {
   h2 select {
     display: inline-block;
   }
+}
+
+.form {
+  margin-top: 120px;
+  max-width: 186px;
 }
 
 .button-group {

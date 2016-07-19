@@ -12,7 +12,6 @@ $red: #F44336;
 $redLight: #EF9A9A;
 $yellow: #FFF59D;
 
-$secondary: $red;
-$secondaryLight: lighten($secondary, 10%);
-$secondaryInverse: $redLight;
 $highlight: $yellow;
+$secondary: $yellow;
+$secondaryLight: lighten($secondary, 10%);
