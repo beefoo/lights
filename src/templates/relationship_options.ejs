@@ -1,11 +1,13 @@
 <h2><%= relationship.name %></h2>
 
 <% if (last_meeting) { %>
-<p>Last <%= last_meeting.method.verb_past %>: <%= UTIL.formatDate(last_meeting.date) %> (<%= UTIL.timeAgo(last_meeting.date) %>)</p>
+  <h4>Last <%= last_meeting.method.verb_past %></h4>
+  <p><%= UTIL.formatDate(last_meeting.date) %> <em>(<%= UTIL.timeAgo(last_meeting.date) %>)</em></p>
 <% } %>
 
 <% if (rhythm) { %>
-<p>Rhythm: <%= rhythm.label %></p>
+  <h4>Rhythm</h4>
+  <p> <%= rhythm.label %></p>
 <% } %>
 
 <div class="button-group">

@@ -13,6 +13,14 @@ var MeetingListView = (function() {
   }
 
   MeetingListView.prototype.init = function(){
+    var _this = this;
+
+    // add method obj
+    this.opt.meetings = _.map(this.opt.meetings, function(m){
+      m.methodObj = _.findWhere(_this.opt.methods, {value: m.method});
+      return m;
+    });
+    // sort meetings
     this.opt.meetings = _.sortBy(this.opt.meetings, function(m){
       var d = UTIL.normalizeDate(m.date);
       return -d.getTime();

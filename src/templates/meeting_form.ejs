@@ -9,16 +9,15 @@
     <%= relationship.name %>
   </h2>
 
-  <% if (meeting) { %>
-  <label for="date">On Date:</label>
-
-  <% } else { %>
-  <button class="days-ago" days-ago="0">Today</button>
-  <button class="days-ago" days-ago="1">Yesterday</button>
-  <button class="days-ago" days-ago="2">2 Days Ago</button>
-  <label for="date">Another Date:</label>
+  <% if (!meeting) { %>
+    <div class="button-group">
+      <button class="days-ago" days-ago="0">Today</button>
+      <button class="days-ago" days-ago="1">Yesterday</button>
+      <button class="days-ago" days-ago="2">2 Days Ago</button>
+    </div>
   <% } %>
 
+  <label for="date">On Date:</label>
   <input type="date" name="date" placeholder="yyyy-mm-dd" value="<%= meeting ? UTIL.formatDateInput(meeting.date) : '' %>">
 
   <label for="notes"><%= meeting ? 'Note: ' : 'Add A Note: ' %></label>

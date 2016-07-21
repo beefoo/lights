@@ -3,9 +3,12 @@
 <div class="meeting-list">
   <% _.each(meetings, function(meeting){ %>
     <div class="meeting">
-      <div class="date"><%= UTIL.formatDate(meeting.date) %> (<%= UTIL.timeAgo(meeting.date) %>)</div>
+      <% if (meeting.methodObj) { %>
+      <div class="method"><%= meeting.methodObj.label %></div>
+      <% } %>
+      <div class="date"><%= UTIL.formatDate(meeting.date) %> <em>(<%= UTIL.timeAgo(meeting.date) %>)</em></div>
       <% if (meeting.notes.length) { %>
-        <div class="notes"><%= meeting.notes %></div>
+      <div class="notes"><%= meeting.notes %></div>
       <% } %>
       <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>
     </div>
