@@ -90,11 +90,28 @@ $nav-height: 40px;
   .relationship {
     position: absolute;
     display: block;
+    @include transform-origin(50% -2000px);
+    @include animation(swing 14s infinite);
+
+    .wrapper {
+      @include animation(fadeIn 8s);
+    }
+
+    @for $i from 2 through 8 {
+      &[level="#{$i}"] {
+        @include animation-duration(#{15-$i}s);
+        .wrapper {
+          @include animation-duration(#{9-$i}s);
+        }
+      }
+    }
   }
 
   .name {
     display: none;
   }
+
+
 
   .string {
     display: block;

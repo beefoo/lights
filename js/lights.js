@@ -187,7 +187,7 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<nav 
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["light.ejs"] = '<div>Light</div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_form.ejs"] = '<form class="meeting-form">  <h2>    I    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m.value %>" <%= m.value==method.value ? "selected" : "" %>><%= m.verb_past %></option>      <% }) %>    </select>    <%= relationship.name %>  </h2>  <% if (!meeting) { %>    <div class="button-group">      <button class="days-ago" days-ago="0">Today</button>      <button class="days-ago" days-ago="1">Yesterday</button>      <button class="days-ago" days-ago="2">2 Days Ago</button>    </div>  <% } %>  <label for="date">On Date:</label>  <input type="date" name="date" placeholder="yyyy-mm-dd" value="<%= meeting ? UTIL.formatDateInput(meeting.date) : \'\' %>">  <label for="notes"><%= meeting ? \'Note: \' : \'Add A Note: \' %></label>  <textarea name="notes"><%= meeting ? meeting.notes : \'\' %></textarea>  <% if (meeting) { %>  <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>  <input name="id" type="hidden" value="<%= meeting.id %>" />  <% } %>  <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />  <button type="submit">Submit</button></form><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <% if (meetings && meetings.length) { %>  <button class="view-meetings">View/Edit Past Meetings</button>  <% } %></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_list.ejs"] = '<h2>Meetings with <%= relationship.name %></h2><div class="meeting-list">  <% _.each(meetings, function(meeting){ %>    <div class="meeting">      <% if (meeting.methodObj) { %>      <div class="method"><%= meeting.methodObj.label %></div>      <% } %>      <div class="date"><%= UTIL.formatDate(meeting.date) %> <em>(<%= UTIL.timeAgo(meeting.date) %>)</em></div>      <% if (meeting.notes.length) { %>      <div class="notes"><%= meeting.notes %></div>      <% } %>      <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>    </div>  <% }) %></div><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <button class="add-meeting">Add New Meeting</button></div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light level<%= level %>"></div><div class="light flicker level<%= level %>"></div><div class="string"></div><div class="name"><%= relationship ? relationship.name : \'\' %></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="wrapper">  <div class="light level<%= level %>"></div>  <div class="light flicker level<%= level %>"></div>  <div class="string"></div>  <div class="name"><%= relationship ? relationship.name : \'\' %></div></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><% if (relationship) { %>  <div class="button-group">    <button class="view-meetings">View/Edit Past Meetings</button>    <button class="add-meeting">Add New Meeting</button>  </div><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_options.ejs"] = '<h2><%= relationship.name %></h2><% if (last_meeting) { %>  <h4>Last <%= last_meeting.method.verb_past %></h4>  <p><%= UTIL.formatDate(last_meeting.date) %> <em>(<%= UTIL.timeAgo(last_meeting.date) %>)</em></p><% } %><% if (rhythm) { %>  <h4>Rhythm</h4>  <p> <%= rhythm.label %></p><% } %><div class="button-group">  <button class="add-meeting">Add New Meeting</button>  <button class="edit-relationship">Edit Settings</button>  <button class="view-meetings">View/Edit Past Meetings</button></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
@@ -1259,13 +1259,16 @@ var RelationshipView = (function() {
     var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
     var title = r.name;
 
+    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
+    this.opt.relationship = r;
+
     if (lastMeeting) {
       var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
       title += " - Last " + lastMethod.verb_past + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
     }
 
     this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
-
+    this.$el.attr('level', this.opt.level);
     this.$el.attr('title', title);
     this.$el.css({
       width: w + 'vw',
@@ -1274,8 +1277,7 @@ var RelationshipView = (function() {
       left: r.left + 'vw'
     });
 
-    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
-    this.opt.relationship = r;
+
     this.$el.html(this.template(this.opt));
   };
 

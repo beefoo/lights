@@ -140,13 +140,16 @@ var RelationshipView = (function() {
     var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
     var title = r.name;
 
+    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
+    this.opt.relationship = r;
+
     if (lastMeeting) {
       var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
       title += " - Last " + lastMethod.verb_past + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
     }
 
     this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
-
+    this.$el.attr('level', this.opt.level);
     this.$el.attr('title', title);
     this.$el.css({
       width: w + 'vw',
@@ -155,8 +158,7 @@ var RelationshipView = (function() {
       left: r.left + 'vw'
     });
 
-    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
-    this.opt.relationship = r;
+
     this.$el.html(this.template(this.opt));
   };
 
