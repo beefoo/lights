@@ -125,6 +125,7 @@ var RelationshipView = (function() {
       left: x + 'px',
       top: y + 'px',
       width: w + 'px',
+      'z-index': 100,
       height: (w * aspectRatio) + 'px'
     });
   };
@@ -155,7 +156,8 @@ var RelationshipView = (function() {
       width: w + 'vw',
       height: (w * aspectRatio) + 'vw',
       top: r.top + 'vh',
-      left: r.left + 'vw'
+      left: r.left + 'vw',
+      'z-index': w
     });
 
 
@@ -193,6 +195,7 @@ var RelationshipView = (function() {
     var x = parseFloat($el.css('left'));
     var y = parseFloat($el.css('top'));
     var z = parseFloat($el.width());
+    $el.css('z-index', x/vw*100);
     $.publish('relationship.update', {
       id: r.id(),
       left: (x/vw*100),
