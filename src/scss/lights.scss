@@ -151,7 +151,7 @@ $nav-height: 40px;
 
     &.flicker {
       background-image: url(../img/lightbulb/lightbulb01b.png);
-      @include animation(fadeInOut 0.08s infinite);
+      @include animation(fadeInOut 12s infinite);
       z-index: 2;
     }
 
