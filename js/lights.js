@@ -150,10 +150,10 @@ $.fn.serializeObject = function()
     else if (days > (365 - 7)) time_ago = "about a year ago";
     else if (days >= 2) {
       // determine months
-      var monthDiff = now.getMonth() - d.getMonth();
+      var monthDiff = now.getMonth() - d.getMonth() + (12 * (now.getFullYear() - d.getFullYear()));
       var dateDiff = now.getUTCDate() - d.getUTCDate();
       var months = 0;
-      if (monthDiff > 0 && dateDiff >= 0) {
+      if (monthDiff > 0 && dateDiff >= 0 || monthDiff > 1) {
         months = monthDiff;
         days = dateDiff;
       }
