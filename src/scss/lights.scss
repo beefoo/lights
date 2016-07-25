@@ -112,8 +112,6 @@ $nav-height: 40px;
     display: none;
   }
 
-
-
   .string {
     display: block;
     position: absolute;
@@ -151,7 +149,7 @@ $nav-height: 40px;
 
     &.flicker {
       background-image: url(../img/lightbulb/lightbulb01b.png);
-      @include animation(fadeInOut 12s infinite);
+      @include animation(fadeInOut 16s infinite);
       z-index: 2;
     }
 
@@ -161,10 +159,25 @@ $nav-height: 40px;
         background-size: 100% auto;
         &.flicker {
           background-image: url(../img/lightbulb/lightbulb0#{$i}b.png);
+          @include animation-duration(#{17-$i}s);
         }
       }
     }
+  }
 
+  // create a pseudo-random animation effect by adding delays
+  .relationship {
+    @for $i from 1 through 7 {
+      &:nth-child(8n+#{$i}) {
+        @include animation-delay(#{8-$i}s);
+        .wrapper {
+          @include animation-delay(#{8-$i}s);
+        }
+        .light.flicker {
+          @include animation-delay(#{8-$i}s);
+        }
+      }
+    }
   }
 
 }

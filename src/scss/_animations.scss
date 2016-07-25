@@ -30,9 +30,9 @@
 
 @include keyframes(swing) {
   0%, 100% {
-    @include transform(rotate(-0.1deg));
+    @include transform(rotate(-0.08deg));
   }
   50% {
-    @include transform(rotate(0.1deg));
+    @include transform(rotate(0.08deg));
   }
 }
