@@ -71,6 +71,10 @@ $.fn.serializeObject = function()
 (function() {
   window.UTIL = {};
 
+  UTIL.distance = function(x1, y1, x2, y2){
+    return Math.sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+  };
+
   UTIL.formatDate = function(date) {
     var d = new Date(date);
 
@@ -1157,6 +1161,14 @@ var RelationshipView = (function() {
     return this.$el;
   };
 
+  RelationshipView.prototype.getCenter = function(){
+    var $el = this.$el;
+    return {
+      x: parseFloat($el.css('left')) + parseFloat($el.width()) * 0.5,
+      y: parseFloat($el.css('top')) + parseFloat($el.height()) * 0.5
+    }
+  };
+
   RelationshipView.prototype.getGestureData = function(e){
     return {
       x: e.center.x,
@@ -1185,6 +1197,10 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.getWidthPx = function(y){
     return UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
+  };
+
+  RelationshipView.prototype.hover = function(){
+    this.$el.addClass('hover');
   };
 
   RelationshipView.prototype.id = function(){
@@ -1243,7 +1259,7 @@ var RelationshipView = (function() {
       left: x + 'px',
       top: y + 'px',
       width: w + 'px',
-      'z-index': 100,
+      'z-index': 201,
       height: (w * aspectRatio) + 'px'
     });
   };
@@ -1434,6 +1450,7 @@ var SpaceView = (function() {
     this.space = false;
     this.$el = $(this.opt.el);
     this.$relationshipViews = [];
+    this.relationshipPositions = [];
     this.template = this.opt.template;
     this.opt.user = this.opt.user_model.getUserData();
     this.loadListeners();
@@ -1458,6 +1475,9 @@ var SpaceView = (function() {
     this.$el.find('.relationships').append(view.el());
     this.$relationshipViews.push(view);
 
+    // update positions
+    this.updateRelationshipPositions();
+
     // show meeting form
     $.publish('modals.open', [MeetingFormView, {relationship: relationship.toJSON()}]);
   };
@@ -1469,6 +1489,8 @@ var SpaceView = (function() {
 
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
     if (view) view.deleteMeeting(id);
+
+
   };
 
   SpaceView.prototype.deleteRelationship = function(id){
@@ -1478,6 +1500,23 @@ var SpaceView = (function() {
     // update view
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
     if (view) view.remove();
+
+    // remove view
+    this.$relationshipViews = _.reject(this.$relationshipViews, function(v){ return v.id()==id; });
+
+    // update positions
+    this.updateRelationshipPositions();
+  };
+
+  SpaceView.prototype.hoverNearestNeighbor = function(e){
+    if (!this.relationshipPositions.length) return false;
+    var x = e.clientX;
+    var y = e.clientY;
+
+    var sorted = _.sortBy(this.relationshipPositions, function(p){ return UTIL.distance(p.x, p.y, x, y); });
+    var view = _.find(this.$relationshipViews, function(v){ return v.id()==sorted[0].id; });
+    this.$el.find('.relationship').removeClass('hover');
+    if (view) view.hover();
   };
 
   SpaceView.prototype.isActive = function(){
@@ -1490,6 +1529,15 @@ var SpaceView = (function() {
     this.$el.on('click', '.add-relationship', function(e){
       e.preventDefault();
       $.publish('modals.open', [RelationshipFormView, {}]);
+    });
+
+    this.$el.on('mousemove', function(e){
+      _this.hoverNearestNeighbor(e);
+    });
+
+    $(window).on('resize', function(e){
+      // update positions
+      _this.updateRelationshipPositions();
     });
 
     $.subscribe('users.refresh', function(e, user, message){
@@ -1573,6 +1621,7 @@ var SpaceView = (function() {
       });
     }
     this.$el.find('.relationships-wrapper').html($relationships);
+    this.updateRelationshipPositions();
   };
 
   SpaceView.prototype.updateMeeting = function(id, data){
@@ -1592,6 +1641,13 @@ var SpaceView = (function() {
     // update view
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
     if (view) view.update(data);
+
+    // update positions
+    this.updateRelationshipPositions();
+  };
+
+  SpaceView.prototype.updateRelationshipPositions = function(){
+    this.relationshipPositions = _.map(this.$relationshipViews, function(v){ return _.extend({}, {id: v.id()}, v.getCenter()); });
   };
 
   return SpaceView;

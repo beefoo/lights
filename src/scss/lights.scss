@@ -6,7 +6,7 @@
 @import "common";
 
 html {
-  background: $black;
+  background: $darkBlue;
   color: $white;
 }
 
@@ -94,6 +94,14 @@ $nav-height: 40px;
     @include transform-origin(50% -2000px);
     @include animation(swing 14s infinite);
 
+    &.hover {
+      background: -moz-radial-gradient(center, ellipse cover, rgba(255,245,157,0.3) 0%, rgba(255,245,157,0) 20%, rgba(255,245,157,0) 100%); /* FF3.6-15 */
+      background: -webkit-radial-gradient(center, ellipse cover, rgba(255,245,157,0.3) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%); /* Chrome10-25,Safari5.1-6 */
+      background: radial-gradient(ellipse at center, rgba(255,245,157,0.3) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4dfff59d', endColorstr='#00fff59d',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+      z-index: 200;
+    }
+
     .wrapper {
       @include animation(fadeIn 8s);
     }
@@ -120,7 +128,7 @@ $nav-height: 40px;
     top: -1970px;
     left: 50%;
     margin-left: -1px;
-    background: #292323;
+    background: $darkGray;
     z-index: 3;
 
     &:before {
@@ -131,9 +139,9 @@ $nav-height: 40px;
       position: absolute;
       bottom: 0;
       left: 0;
-      background: -moz-linear-gradient(top, #292323 0%, #000000 100%);
-      background: -webkit-linear-gradient(top, #292323 0%,#000000 100%);
-      background: linear-gradient(to bottom, #292323 0%,#000000 100%);
+      background: -moz-linear-gradient(top, $darkGray 0%, #000000 100%);
+      background: -webkit-linear-gradient(top, $darkGray 0%,#000000 100%);
+      background: linear-gradient(to bottom, $darkGray 0%,#000000 100%);
     }
   }
 
@@ -171,7 +179,7 @@ $nav-height: 40px;
       &:nth-child(8n+#{$i}) {
         @include animation-delay(#{8-$i}s);
         .wrapper {
-          @include animation-delay(#{8-$i}s);
+          @include animation-delay(#{(8-$i)*0.2}s);
         }
         .light.flicker {
           @include animation-delay(#{8-$i}s);

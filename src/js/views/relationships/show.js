@@ -39,6 +39,14 @@ var RelationshipView = (function() {
     return this.$el;
   };
 
+  RelationshipView.prototype.getCenter = function(){
+    var $el = this.$el;
+    return {
+      x: parseFloat($el.css('left')) + parseFloat($el.width()) * 0.5,
+      y: parseFloat($el.css('top')) + parseFloat($el.height()) * 0.5
+    }
+  };
+
   RelationshipView.prototype.getGestureData = function(e){
     return {
       x: e.center.x,
@@ -67,6 +75,10 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.getWidthPx = function(y){
     return UTIL.lerp(this.opt.widthRange[0], this.opt.widthRange[1], y / this.windowHeight) / 100 * this.windowWidth;
+  };
+
+  RelationshipView.prototype.hover = function(){
+    this.$el.addClass('hover');
   };
 
   RelationshipView.prototype.id = function(){
@@ -125,7 +137,7 @@ var RelationshipView = (function() {
       left: x + 'px',
       top: y + 'px',
       width: w + 'px',
-      'z-index': 100,
+      'z-index': 201,
       height: (w * aspectRatio) + 'px'
     });
   };
