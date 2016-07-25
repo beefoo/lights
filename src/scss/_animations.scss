@@ -22,17 +22,19 @@
 @include keyframes(fadeInOut) {
   0%, 100% {
     opacity: 0;
+    @include transform(translateZ(0));
   }
   50% {
     opacity: 1;
+    @include transform(translateZ(0));
   }
 }
 
 @include keyframes(swing) {
   0%, 100% {
-    @include transform(rotate(-0.08deg));
+    @include transform(rotate(-0.08deg) translateZ(0));
   }
   50% {
-    @include transform(rotate(0.08deg));
+    @include transform(rotate(0.08deg) translateZ(0));
   }
 }
