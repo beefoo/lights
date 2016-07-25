@@ -58,7 +58,7 @@ var ResetView = (function() {
     this.$el.find('.message').html(message).addClass('active');
     this.$el.find('[type="submit"]').prop('disabled', false).text('Submit');
     setTimeout(function(){
-      window.location.hash = '/';
+      window.location.hash = '/app';
     }, 2000);
   };
 

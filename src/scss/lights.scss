@@ -116,8 +116,22 @@ $nav-height: 40px;
     }
   }
 
-  .name {
-    display: none;
+  .title {
+    padding: 1em;
+    font-size: 0.8em;
+    text-align: center;
+    z-index: 4;
+    position: absolute;
+    width: 200px;
+    margin-left: -100px;
+    top: 0;
+    left: 50%;
+
+    @include box-sizing();
+    @include animation(fadeOutUp 0.5s);
+  }
+  .relationship.hover .title {
+    @include animation(fadeInDown 0.5s);
   }
 
   .string {

@@ -168,9 +168,10 @@ var RelationshipView = (function() {
     var title = name;
     if (lastMeeting) {
       var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
-      title = "Last " + lastMethod.verb_past + " " + name + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
+      title = "Last " + lastMethod.verb_past + " " + name + "<br/>" + UTIL.formatDate(lastMeeting.date) + "<br/>(" + UTIL.timeAgo(lastMeeting.date) + ")";
     }
-    this.$el.attr('title', title);
+    this.opt.title = title;
+    // this.$el.attr('title', title);
     this.$el.attr('level', this.opt.level);
     this.$el.css({
       width: w + 'vw',
@@ -179,7 +180,6 @@ var RelationshipView = (function() {
       left: r.left + 'vw',
       'z-index': w
     });
-
     this.$el.html(this.template(this.opt));
   };
 

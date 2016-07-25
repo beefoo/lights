@@ -76,7 +76,7 @@ var SigninView = (function() {
     this.opt.user = user;
     this.$el.find('.message').html(message).addClass('active');
     setTimeout(function(){
-      window.location.hash = '/';
+      window.location.hash = '/app';
     }, 2000);
   };
 

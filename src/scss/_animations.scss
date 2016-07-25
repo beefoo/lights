@@ -30,6 +30,30 @@
   }
 }
 
+@include keyframes(fadeInDown) {
+  0% {
+    opacity: 0;
+    @include transform(translate3d(0, -100%, 0));
+  }
+
+  100% {
+    opacity: 1;
+    @include transform(none);
+  }
+}
+
+@include keyframes(fadeOutUp) {
+  0% {
+    opacity: 1;
+    @include transform(none);
+  }
+
+  100% {
+    opacity: 0;
+    @include transform(translate3d(0, -100%, 0));
+  }
+}
+
 @include keyframes(swing) {
   0%, 100% {
     @include transform(rotate(-0.08deg) translateZ(0));

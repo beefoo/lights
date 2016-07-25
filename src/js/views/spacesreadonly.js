@@ -21,7 +21,11 @@ var SpaceReadonlyView = (function() {
   SpaceReadonlyView.prototype.constructor = SpaceReadonlyView;
 
   SpaceReadonlyView.prototype.init = function(){
-    this.loadSpace();
+    if (this.loaded) {
+      this.render();
+    } else {
+      this.loadSpace();
+    }
   };
 
   SpaceReadonlyView.prototype.loadListeners = function(){
