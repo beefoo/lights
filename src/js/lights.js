@@ -49,9 +49,15 @@ $(function(){
     },
 
     // home
-    '': function(){
+    '/app': function(){
       this.space_view = this.space_view || new SpaceView(defaults);
       this.space_view.init();
+    },
+
+    // home
+    '': function(){
+      this.space_readonly_view = this.space_readonly_view || new SpaceReadonlyView(defaults);
+      this.space_readonly_view.init();
     }
   };
 

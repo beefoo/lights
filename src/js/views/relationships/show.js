@@ -22,7 +22,7 @@ var RelationshipView = (function() {
 
     this.setWindowSize();
     this.render();
-    this.loadListeners();
+    if (!this.opt.readonly) this.loadListeners();
   };
 
   RelationshipView.prototype.addMeeting = function(meeting){
@@ -151,19 +151,27 @@ var RelationshipView = (function() {
     var aspectRatio = this.opt.aspectRatio;
     var w = this.getWidth(r.top);
     var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
-    var title = r.name;
+    var name = r.name;
 
     this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
     this.opt.relationship = r;
 
-    if (lastMeeting) {
-      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
-      title += " - Last " + lastMethod.verb_past + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
+    if (this.opt.readonly) {
+      this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');
+      name = _.map(name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
+
+    } else {
+      this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
     }
 
-    this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
-    this.$el.attr('level', this.opt.level);
+    // build title
+    var title = name;
+    if (lastMeeting) {
+      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
+      title = "Last " + lastMethod.verb_past + " " + name + ": " + UTIL.formatDate(lastMeeting.date) + " (" + UTIL.timeAgo(lastMeeting.date) + ")";
+    }
     this.$el.attr('title', title);
+    this.$el.attr('level', this.opt.level);
     this.$el.css({
       width: w + 'vw',
       height: (w * aspectRatio) + 'vw',
@@ -171,7 +179,6 @@ var RelationshipView = (function() {
       left: r.left + 'vw',
       'z-index': w
     });
-
 
     this.$el.html(this.template(this.opt));
   };

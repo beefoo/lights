@@ -4,7 +4,8 @@ var SpaceView = (function() {
       el: '#main',
       id: 'space',
       template: _.template(TEMPLATES['space.ejs']),
-      space: false
+      space: false,
+      readonly: false
     };
     this.opt = _.extend(defaults, options);
     this.space = false;
@@ -174,7 +175,7 @@ var SpaceView = (function() {
       _.each(this.opt.space.relationships, function(r){
         if (r.active) {
           var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
-          var view = new RelationshipView({relationship: r, meetings: rmeetings});
+          var view = new RelationshipView({relationship: r, meetings: rmeetings, readonly: _this.opt.readonly});
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);
         }

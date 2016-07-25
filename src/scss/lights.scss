@@ -95,10 +95,10 @@ $nav-height: 40px;
     @include animation(swing 14s infinite);
 
     &.hover {
-      background: -moz-radial-gradient(center, ellipse cover, rgba(255,245,157,0.3) 0%, rgba(255,245,157,0) 20%, rgba(255,245,157,0) 100%); /* FF3.6-15 */
-      background: -webkit-radial-gradient(center, ellipse cover, rgba(255,245,157,0.3) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%); /* Chrome10-25,Safari5.1-6 */
-      background: radial-gradient(ellipse at center, rgba(255,245,157,0.3) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4dfff59d', endColorstr='#00fff59d',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+      background: -moz-radial-gradient(center, ellipse cover, rgba(255,245,157,0.1) 0%, rgba(255,245,157,0) 20%, rgba(255,245,157,0) 100%);
+      background: -webkit-radial-gradient(center, ellipse cover, rgba(255,245,157,0.1) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%);
+      background: radial-gradient(ellipse at center, rgba(255,245,157,0.1) 0%,rgba(255,245,157,0) 20%,rgba(255,245,157,0) 100%);
+      filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4dfff59d', endColorstr='#00fff59d',GradientType=1 );
       z-index: 200;
     }
 
