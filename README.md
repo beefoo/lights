@@ -1,4 +1,4 @@
-# In Light of You
+# Light Reminders
 
 A lightweight web app to help you keep the lights of your friendships on
 
