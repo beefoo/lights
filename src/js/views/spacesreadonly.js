@@ -11,9 +11,7 @@ var SpaceReadonlyView = (function() {
     this.space = false;
     this.$el = $(this.opt.el);
     this.$relationshipViews = [];
-    this.relationshipPositions = [];
     this.template = this.opt.template;
-    this.loadListeners();
   }
 
   // inherit from SpaceView
@@ -26,20 +24,6 @@ var SpaceReadonlyView = (function() {
     } else {
       this.loadSpace();
     }
-  };
-
-  SpaceReadonlyView.prototype.loadListeners = function(){
-    var _this = this;
-
-    this.$el.on('mousemove', function(e){
-      _this.hoverNearestNeighbor(e);
-    });
-
-    $(window).on('resize', function(e){
-      // update positions
-      _this.updateRelationshipPositions();
-    });
-
   };
 
   SpaceReadonlyView.prototype.loadSpace = function(){

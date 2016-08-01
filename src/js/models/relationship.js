@@ -15,8 +15,6 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.defaultProps = function(){
-    var left = _.random(30, 70);
-    var top = _.random(20, 40);
     return {
       id: 0,
       name: 'Unknown',
@@ -24,8 +22,8 @@ var RelationshipModel = (function() {
       rhythm: 'week_1',
       notes: '',
       active: 1,
-      left: 10,
-      top: 10
+      order: 0,
+      light: 'workspace'
     };
   };
 
@@ -72,7 +70,7 @@ var RelationshipModel = (function() {
     }
     var rhythmDays = rhythm.amount * unitDays;
     var amount = UTIL.lim(diffDays / rhythmDays, 0, 1);
-    var level = Math.round(UTIL.lerp(7, 0, amount)) + 1;
+    var level = Math.round(UTIL.lerp(9, 0, amount));
 
     return level;
   };

@@ -11,7 +11,6 @@ var SpaceView = (function() {
     this.space = false;
     this.$el = $(this.opt.el);
     this.$relationshipViews = [];
-    this.relationshipPositions = [];
     this.template = this.opt.template;
     this.opt.user = this.opt.user_model.getUserData();
     this.loadListeners();
@@ -36,9 +35,6 @@ var SpaceView = (function() {
     this.$el.find('.relationships').append(view.el());
     this.$relationshipViews.push(view);
 
-    // update positions
-    this.updateRelationshipPositions();
-
     // show meeting form
     $.publish('modals.open', [MeetingFormView, {relationship: relationship.toJSON()}]);
   };
@@ -50,8 +46,6 @@ var SpaceView = (function() {
 
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==meeting.relationship_id; });
     if (view) view.deleteMeeting(id);
-
-
   };
 
   SpaceView.prototype.deleteRelationship = function(id){
@@ -64,20 +58,6 @@ var SpaceView = (function() {
 
     // remove view
     this.$relationshipViews = _.reject(this.$relationshipViews, function(v){ return v.id()==id; });
-
-    // update positions
-    this.updateRelationshipPositions();
-  };
-
-  SpaceView.prototype.hoverNearestNeighbor = function(e){
-    if (!this.relationshipPositions.length) return false;
-    var x = e.clientX;
-    var y = e.clientY;
-
-    var sorted = _.sortBy(this.relationshipPositions, function(p){ return UTIL.distance(p.x, p.y, x, y); });
-    var view = _.find(this.$relationshipViews, function(v){ return v.id()==sorted[0].id; });
-    this.$el.find('.relationship').removeClass('hover');
-    if (view) view.hover();
   };
 
   SpaceView.prototype.isActive = function(){
@@ -92,13 +72,11 @@ var SpaceView = (function() {
       $.publish('modals.open', [RelationshipFormView, {}]);
     });
 
-    this.$el.on('mousemove', function(e){
-      _this.hoverNearestNeighbor(e);
-    });
-
-    $(window).on('resize', function(e){
-      // update positions
-      _this.updateRelationshipPositions();
+    $(document).keydown(function(e) {
+      if (e.keyCode == 83 && e.ctrlKey) { // ctrl + s
+        e.preventDefault();
+        _this.save();
+      }
     });
 
     $.subscribe('users.refresh', function(e, user, message){
@@ -182,7 +160,10 @@ var SpaceView = (function() {
       });
     }
     this.$el.find('.relationships-wrapper').html($relationships);
-    this.updateRelationshipPositions();
+  };
+
+  SpaceView.prototype.save = function(){
+    this.space.save();
   };
 
   SpaceView.prototype.updateMeeting = function(id, data){
@@ -202,13 +183,6 @@ var SpaceView = (function() {
     // update view
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
     if (view) view.update(data);
-
-    // update positions
-    this.updateRelationshipPositions();
-  };
-
-  SpaceView.prototype.updateRelationshipPositions = function(){
-    this.relationshipPositions = _.map(this.$relationshipViews, function(v){ return _.extend({}, {id: v.id()}, v.getCenter()); });
   };
 
   return SpaceView;
