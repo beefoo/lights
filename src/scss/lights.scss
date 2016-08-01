@@ -83,7 +83,6 @@ $nav-height: 40px;
   text-align: center;
   position: relative;
   margin: 0 auto;
-  max-width: 1400px;
   padding: 20px;
 
   .relationship {
@@ -101,9 +100,25 @@ $nav-height: 40px;
     }
   }
 
-  .title {
-    padding: 1em;
-    font-size: 0.8em;
+  .caption {
+    padding: 0.5em 0;
+    text-align: left;
+
+    .light-label {
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: $grayDark;
+      font-size: 0.7em;
+    }
+    .energy-label {
+      color: $yellow;
+      font-weight: bold;
+    }
+    .meeting-label {
+      font-size: 0.8em;
+      margin-top: 6px;
+      color: $grayLight;
+    }
   }
 
   .light {

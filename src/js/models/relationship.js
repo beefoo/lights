@@ -43,7 +43,17 @@ var RelationshipModel = (function() {
     return meetings[0];
   };
 
-  RelationshipModel.prototype.getLevel = function(meetings){
+  RelationshipModel.prototype.getLevel = function(amount){
+    var level = Math.round(UTIL.lerp(0, 9, amount));
+    return level;
+  };
+
+  RelationshipModel.prototype.getLevelFromMeetings = function(meetings){
+    var amount = this.getPercent(meetings);
+    return this.getLevel(amount);
+  };
+
+  RelationshipModel.prototype.getPercent = function(meetings){
     // find the difference between now and last meeting
     var meeting = this.getLastMeeting(meetings);
     if (!meeting) return 1;
@@ -69,10 +79,7 @@ var RelationshipModel = (function() {
         break;
     }
     var rhythmDays = rhythm.amount * unitDays;
-    var amount = UTIL.lim(diffDays / rhythmDays, 0, 1);
-    var level = Math.round(UTIL.lerp(9, 0, amount));
-
-    return level;
+    return 1.0-UTIL.lim(diffDays / rhythmDays, 0, 1);
   };
 
   RelationshipModel.prototype.getRhythm = function(){

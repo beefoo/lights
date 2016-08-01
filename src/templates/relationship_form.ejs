@@ -18,6 +18,13 @@
     <% }) %>
   </select>
 
+  <label for="rhythm">Light</label>
+  <select name="light">
+    <% _.each(lights, function(l){ %>
+      <option value="<%= l.value %>" <%= relationship && relationship.light==l.value ? 'selected' : '' %>><%= l.label %></option>
+    <% }) %>
+  </select>
+
   <% if (relationship) { %>
   <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>
   <input name="id" type="hidden" value="<%= relationship.id %>" />

@@ -55,28 +55,23 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.render = function(){
     var r = this.relationshipModel.toJSON();
-    var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
-    var name = r.name;
 
-    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
+    this.opt.lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
+    if (this.opt.lastMeeting) this.opt.lastMethod = _.findWhere(this.opt.methods, {value: this.opt.lastMeeting.method});
+    this.opt.energy = this.relationshipModel.getPercent(this.opt.meetings);
+    this.opt.level = this.relationshipModel.getLevel(this.opt.energy);
     this.opt.relationship = r;
+    this.opt.name = r.name;
+    this.opt.light = _.findWhere(this.opt.lights, {value: r.light});
 
     if (this.opt.readonly) {
       this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');
-      name = _.map(name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
+      this.opt.name = _.map(this.opt.name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
 
     } else {
       this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
     }
 
-    // build title
-    var title = name;
-    if (lastMeeting) {
-      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
-      title = "Last " + lastMethod.verb_past + " " + name + "<br/>" + UTIL.formatDate(lastMeeting.date) + "<br/>(" + UTIL.timeAgo(lastMeeting.date) + ")";
-    }
-    this.opt.title = title;
-    // this.$el.attr('title', title);
     this.$el.attr('level', this.opt.level);
     this.$el.html(this.template(this.opt));
   };

@@ -40,6 +40,9 @@ var CONFIG = {
     {value: 'month_4', label: 'Four Months'},
     {value: 'month_6', label: 'Six Months'},
     {value: 'year_1', label: 'One Year'}
+  ],
+  lights: [
+    {value: 'workspace', label: 'Workspace'}
   ]
 };
 
@@ -183,8 +186,8 @@ window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["forgot.ejs"] = '<% if
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["header.ejs"] = '<nav class="nav main" role="menubar">  <% if (user) { %>    <a href="#/" role="menuitem" class="nav-item">Home</a>    <a href="#/app" role="menuitem" class="nav-item">My Relationships</a>    <a href="#/relationships/add" role="menuitem" class="nav-item add-relationship">Add Relationship</a>    <a href="#/account" role="menuitem" class="nav-item">Account</a>    <a href="#/signout" role="menuitem" class="nav-item sign-out-link">Sign Out</a>  <% } else { %>    <!-- <a href="#/signin" role="menuitem" class="nav-item">Sign In</a>    <a href="#/signup" role="menuitem" class="nav-item">Sign Up</a> -->  <% } %></nav><div class="message main" role="alert"></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_form.ejs"] = '<form class="meeting-form">  <h2>    I    <select name="method">      <% _.each(methods, function(m){ %>        <option value="<%= m.value %>" <%= m.value==method.value ? "selected" : "" %>><%= m.verb_past %></option>      <% }) %>    </select>    <%= relationship.name %>  </h2>  <% if (!meeting) { %>    <div class="button-group">      <button class="days-ago" days-ago="0">Today</button>      <button class="days-ago" days-ago="1">Yesterday</button>      <button class="days-ago" days-ago="2">2 Days Ago</button>    </div>  <% } %>  <label for="date">On Date:</label>  <input type="date" name="date" placeholder="yyyy-mm-dd" value="<%= meeting ? UTIL.formatDateInput(meeting.date) : \'\' %>">  <label for="notes"><%= meeting ? \'Note: \' : \'Add A Note: \' %></label>  <textarea name="notes"><%= meeting ? meeting.notes : \'\' %></textarea>  <% if (meeting) { %>  <a href="#/meeting/remove" class="remove-meeting">Remove this meeting</a>  <input name="id" type="hidden" value="<%= meeting.id %>" />  <% } %>  <input type="hidden" name="relationship_id" value="<%= relationship.id %>" />  <button type="submit">Submit</button></form><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <% if (meetings && meetings.length) { %>  <button class="view-meetings">View/Edit Past Meetings</button>  <% } %></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["meeting_list.ejs"] = '<h2>Meetings with <%= relationship.name %></h2><div class="meeting-list">  <% _.each(meetings, function(meeting){ %>    <div class="meeting">      <% if (meeting.methodObj) { %>      <div class="method"><%= meeting.methodObj.label %></div>      <% } %>      <div class="date"><%= UTIL.formatDate(meeting.date) %> <em>(<%= UTIL.timeAgo(meeting.date) %>)</em></div>      <% if (meeting.notes.length) { %>      <div class="notes"><%= meeting.notes %></div>      <% } %>      <a href="#/edit/meeting/<%= meeting.id %>" data-id="<%= meeting.id %>" class="edit-meeting">[edit]</a>    </div>  <% }) %></div><div class="button-group">  <button class="edit-relationship">Edit Settings</button>  <button class="add-meeting">Add New Meeting</button></div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light level<%= level %> <%= relationship.light %>">  <div class="flicker"></div></div><div class="title"><%= title %></div>';
-window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><% if (relationship) { %>  <div class="button-group">    <button class="view-meetings">View/Edit Past Meetings</button>    <button class="add-meeting">Add New Meeting</button>  </div><% } %>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship.ejs"] = '<div class="light level<%= level %> <%= relationship.light %>">  <div class="flicker"></div></div><div class="caption">  <div class="light-label"><%= light.label %> Light</div>  <div class="energy-label" style="opacity: <%= UTIL.lerp(0.2,1,energy) %>">Energy: <%= Math.round(energy * 100) %>%</div>  <div class="meeting-label">    Last <%= lastMethod.verb_past %> <%= name %><br /><span title="<%= UTIL.formatDate(lastMeeting.date) %>"><%= UTIL.timeAgo(lastMeeting.date) %></span>  </div></div>';
+window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_form.ejs"] = '<form class="relationship-form">  <h2><%= relationship ? \'Edit\' : \'Add A\' %> Relationship</h2>  <label for="name">Name</label>  <input name="name" type="text" value="<%= relationship ? relationship.name : \'\' %>" />  <label for="method">Contact Method</label>  <select name="method">    <% _.each(methods, function(m){ %>      <option value="<%= m.value %>" <%= relationship && relationship.method==m.value ? \'selected\' : \'\' %>><%= m.label %></option>    <% }) %>  </select>  <label for="rhythm">Rhythm</label>  <select name="rhythm">    <% _.each(rhythms, function(r){ %>      <option value="<%= r.value %>" <%= relationship && relationship.rhythm==r.value ? \'selected\' : \'\' %>><%= r.label %></option>    <% }) %>  </select>  <label for="rhythm">Light</label>  <select name="light">    <% _.each(lights, function(l){ %>      <option value="<%= l.value %>" <%= relationship && relationship.light==l.value ? \'selected\' : \'\' %>><%= l.label %></option>    <% }) %>  </select>  <% if (relationship) { %>  <a href="#/relationship/remove" class="remove-relationship">Remove this relationship</a>  <input name="id" type="hidden" value="<%= relationship.id %>" />  <% } %>  <button type="submit">Submit</button></form><% if (relationship) { %>  <div class="button-group">    <button class="view-meetings">View/Edit Past Meetings</button>    <button class="add-meeting">Add New Meeting</button>  </div><% } %>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["relationship_options.ejs"] = '<h2><%= relationship.name %></h2><% if (last_meeting) { %>  <h4>Last <%= last_meeting.method.verb_past %></h4>  <p><%= UTIL.formatDate(last_meeting.date) %> <em>(<%= UTIL.timeAgo(last_meeting.date) %>)</em></p><% } %><% if (rhythm) { %>  <h4>Rhythm</h4>  <p> <%= rhythm.label %></p><% } %><div class="button-group">  <button class="add-meeting">Add New Meeting</button>  <button class="edit-relationship">Edit Settings</button>  <button class="view-meetings">View/Edit Past Meetings</button></div>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["reset.ejs"] = '<form class="form reset-form">  <label form="pass">Enter a new password</label>  <input name="pass" type="password" placeholder="New Password" />  <button type="submit">Submit</button>  <div class="message"></div></form>';
 window.TEMPLATES=window.TEMPLATES || {}; window.TEMPLATES["signin.ejs"] = '<% if (user) { %>  <p>You are already logged in! <a href="#/">Return to homepage</a>.</p><% } else { %>  <form class="form signin-form">    <input name="email" type="text" placeholder="Email" />    <input name="pass" type="password" placeholder="Password" />    <button type="submit">Submit</button>    <div class="message"></div>    <p><a href="#/forgot">Forgot your password?</a></p>  </form><% } %>';
@@ -302,7 +305,17 @@ var RelationshipModel = (function() {
     return meetings[0];
   };
 
-  RelationshipModel.prototype.getLevel = function(meetings){
+  RelationshipModel.prototype.getLevel = function(amount){
+    var level = Math.round(UTIL.lerp(0, 9, amount));
+    return level;
+  };
+
+  RelationshipModel.prototype.getLevelFromMeetings = function(meetings){
+    var amount = this.getPercent(meetings);
+    return this.getLevel(amount);
+  };
+
+  RelationshipModel.prototype.getPercent = function(meetings){
     // find the difference between now and last meeting
     var meeting = this.getLastMeeting(meetings);
     if (!meeting) return 1;
@@ -328,10 +341,7 @@ var RelationshipModel = (function() {
         break;
     }
     var rhythmDays = rhythm.amount * unitDays;
-    var amount = UTIL.lim(diffDays / rhythmDays, 0, 1);
-    var level = Math.round(UTIL.lerp(9, 0, amount));
-
-    return level;
+    return 1.0-UTIL.lim(diffDays / rhythmDays, 0, 1);
   };
 
   RelationshipModel.prototype.getRhythm = function(){
@@ -1168,28 +1178,23 @@ var RelationshipView = (function() {
 
   RelationshipView.prototype.render = function(){
     var r = this.relationshipModel.toJSON();
-    var lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
-    var name = r.name;
 
-    this.opt.level = this.relationshipModel.getLevel(this.opt.meetings);
+    this.opt.lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
+    if (this.opt.lastMeeting) this.opt.lastMethod = _.findWhere(this.opt.methods, {value: this.opt.lastMeeting.method});
+    this.opt.energy = this.relationshipModel.getPercent(this.opt.meetings);
+    this.opt.level = this.relationshipModel.getLevel(this.opt.energy);
     this.opt.relationship = r;
+    this.opt.name = r.name;
+    this.opt.light = _.findWhere(this.opt.lights, {value: r.light});
 
     if (this.opt.readonly) {
       this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');
-      name = _.map(name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
+      this.opt.name = _.map(this.opt.name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
 
     } else {
       this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
     }
 
-    // build title
-    var title = name;
-    if (lastMeeting) {
-      var lastMethod = _.findWhere(this.opt.methods, {value: lastMeeting.method});
-      title = "Last " + lastMethod.verb_past + " " + name + "<br/>" + UTIL.formatDate(lastMeeting.date) + "<br/>(" + UTIL.timeAgo(lastMeeting.date) + ")";
-    }
-    this.opt.title = title;
-    // this.$el.attr('title', title);
     this.$el.attr('level', this.opt.level);
     this.$el.html(this.template(this.opt));
   };

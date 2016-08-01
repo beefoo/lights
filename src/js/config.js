@@ -15,5 +15,8 @@ var CONFIG = {
     {value: 'month_4', label: 'Four Months'},
     {value: 'month_6', label: 'Six Months'},
     {value: 'year_1', label: 'One Year'}
+  ],
+  lights: [
+    {value: 'workspace', label: 'Workspace'}
   ]
 };
