@@ -57,12 +57,13 @@ var RelationshipView = (function() {
     var r = this.relationshipModel.toJSON();
 
     this.opt.lastMeeting = this.relationshipModel.getLastMeeting(this.opt.meetings);
-    if (this.opt.lastMeeting) this.opt.lastMethod = _.findWhere(this.opt.methods, {value: this.opt.lastMeeting.method});
-    this.opt.energy = this.relationshipModel.getPercent(this.opt.meetings);
-    this.opt.level = this.relationshipModel.getLevel(this.opt.energy);
+    if (this.opt.lastMeeting) this.opt.lastMethod = this.relationshipModel.getLastMeetingMethod(this.opt.lastMeeting.method);
+    this.opt.power = this.relationshipModel.getPercent(this.opt.meetings);
+    this.opt.level = this.relationshipModel.getLevel(this.opt.power);
+    this.opt.light = this.relationshipModel.getLight();
+    this.opt.images = this.relationshipModel.getImages(this.opt.level);
     this.opt.relationship = r;
     this.opt.name = r.name;
-    this.opt.light = _.findWhere(this.opt.lights, {value: r.light});
 
     if (this.opt.readonly) {
       this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');

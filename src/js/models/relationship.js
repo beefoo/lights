@@ -35,6 +35,15 @@ var RelationshipModel = (function() {
     return _.keys(defaults);
   };
 
+  RelationshipModel.prototype.getImages = function(level){
+    var light = this.getLight();
+    if (!light) light = this.opt.lights[0];
+    var image = this.opt.base_image_url + light.image.replace('{level}', level);
+    var imageOver = image;
+    if (level > 0) imageOver = this.opt.base_image_url + light.image.replace('{level}', level-1);
+    return [image, imageOver];
+  };
+
   RelationshipModel.prototype.getLastMeeting = function(meetings){
     // sort dates descending order
     var meetings = _.map(meetings, function(m){ return _.extend({},m,{date: UTIL.normalizeDate(m.date)}); });
@@ -46,6 +55,10 @@ var RelationshipModel = (function() {
     return meetings[0];
   };
 
+  RelationshipModel.prototype.getLastMeetingMethod = function(methodValue){
+    return _.findWhere(this.opt.methods, {value: methodValue})
+  };
+
   RelationshipModel.prototype.getLevel = function(amount){
     var level = Math.round(UTIL.lerp(0, 9, amount));
     return level;
@@ -54,6 +67,11 @@ var RelationshipModel = (function() {
   RelationshipModel.prototype.getLevelFromMeetings = function(meetings){
     var amount = this.getPercent(meetings);
     return this.getLevel(amount);
+  };
+
+  RelationshipModel.prototype.getLight = function(){
+    var lightValue = this.props.light;
+    return _.findWhere(this.opt.lights, {value: lightValue});
   };
 
   RelationshipModel.prototype.getPercent = function(meetings){

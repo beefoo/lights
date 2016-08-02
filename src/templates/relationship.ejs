@@ -1,10 +1,10 @@
-<div class="light level<%= level %> <%= relationship.light %>">
-  <div class="flicker"></div>
+<div class="light level<%= level %> <%= relationship.light %>" style="background-image: url(<%= images[0] %>)">
+  <div class="flicker" style="background-image: url(<%= images[1] %>)"></div>
 </div>
 
 <div class="caption">
   <div class="light-label"><%= light.label %> Light</div>
-  <div class="energy-label" style="opacity: <%= UTIL.lerp(0.2,1,energy) %>">Energy: <%= Math.round(energy * 100) %>%</div>
+  <div class="energy-label" style="opacity: <%= UTIL.lerp(0.2,1,power) %>">Power: <%= Math.round(power * 100) %>%</div>
   <div class="meeting-label">
     Last <%= lastMethod.verb_past %> <%= name %><br /><span title="<%= UTIL.formatDate(lastMeeting.date) %>"><%= UTIL.timeAgo(lastMeeting.date) %></span>
   </div>
