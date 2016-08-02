@@ -1,7 +1,10 @@
 var RelationshipModel = (function() {
-  function RelationshipModel(props) {
+  function RelationshipModel(props, options) {
     var defaults = this.defaultProps();
+    var defaultOptions = {};
     this.props = _.extend(defaults, props);
+    this.opt = _.extend(defaultOptions, CONFIG);
+    if (options) this.opt = _.extend(defaultOptions, CONFIG, options);
     this.init();
   }
 
@@ -85,17 +88,10 @@ var RelationshipModel = (function() {
   RelationshipModel.prototype.getRhythm = function(){
     if (!this.props.rhythm || !this.props.rhythm.length) return false;
 
-    var parts = this.props.rhythm.split('_');
-    var rhythm = false;
+    var rhythmValue = this.props.rhythm;
+    var rhythm = _.findWhere(this.opt.rhythms, {value: rhythmValue});
 
-    if (parts.length==2) {
-      rhythm = {
-        unit: parts[0],
-        amount: parseInt(parts[1])
-      }
-    }
-
-    return rhythm;
+    return rhythm ? _.clone(rhythm) : false;
   };
 
   RelationshipModel.prototype.id = function(){

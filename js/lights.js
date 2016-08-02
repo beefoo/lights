@@ -32,17 +32,17 @@ var CONFIG = {
     {value: 'mail', label: 'Snail Mail', verb_past: 'wrote', verb: 'write'}
   ],
   rhythms: [
-    {value: 'week_1', label: 'One Week'},
-    {value: 'week_2', label: 'Two Weeks'},
-    {value: 'month_1', label: 'One Month'},
-    {value: 'month_2', label: 'Two Months'},
-    {value: 'month_3', label: 'Three Months'},
-    {value: 'month_4', label: 'Four Months'},
-    {value: 'month_6', label: 'Six Months'},
-    {value: 'year_1', label: 'One Year'}
+    {value: 'week_1', label: 'One Week', unit: 'week', amount: 1},
+    {value: 'week_2', label: 'Two Weeks', unit: 'week', amount: 2},
+    {value: 'month_1', label: 'One Month', unit: 'month', amount: 1},
+    {value: 'month_2', label: 'Two Months', unit: 'month', amount: 2},
+    {value: 'month_3', label: 'Three Months', unit: 'month', amount: 3},
+    {value: 'month_4', label: 'Four Months', unit: 'month', amount: 4},
+    {value: 'month_6', label: 'Six Months', unit: 'month', amount: 6},
+    {value: 'year_1', label: 'One Year', unit: 'year', amount: 1}
   ],
   lights: [
-    {value: 'workspace', label: 'Workspace'}
+    {value: 'workspace', label: 'Workspace', hueLightId: 1}
   ]
 };
 
@@ -261,9 +261,12 @@ var MeetingModel = (function() {
 })();
 
 var RelationshipModel = (function() {
-  function RelationshipModel(props) {
+  function RelationshipModel(props, options) {
     var defaults = this.defaultProps();
+    var defaultOptions = {};
     this.props = _.extend(defaults, props);
+    this.opt = _.extend(defaultOptions, CONFIG);
+    if (options) this.opt = _.extend(defaultOptions, CONFIG, options);
     this.init();
   }
 
@@ -347,17 +350,10 @@ var RelationshipModel = (function() {
   RelationshipModel.prototype.getRhythm = function(){
     if (!this.props.rhythm || !this.props.rhythm.length) return false;
 
-    var parts = this.props.rhythm.split('_');
-    var rhythm = false;
+    var rhythmValue = this.props.rhythm;
+    var rhythm = _.findWhere(this.opt.rhythms, {value: rhythmValue});
 
-    if (parts.length==2) {
-      rhythm = {
-        unit: parts[0],
-        amount: parseInt(parts[1])
-      }
-    }
-
-    return rhythm;
+    return rhythm ? _.clone(rhythm) : false;
   };
 
   RelationshipModel.prototype.id = function(){
