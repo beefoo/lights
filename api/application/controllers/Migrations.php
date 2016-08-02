@@ -13,10 +13,11 @@ class Migrations extends CI_Controller {
   }
 
   public function data() {
-    if (ENVIRONMENT != 'development') return false;
+    if (ENVIRONMENT != 'development' || !defined('APPPATH')) return false;
 
+    require_once(APPPATH."config/production/config.php");
     $this->load->model('spaces_model');
-    $jsonData = json_decode(file_get_contents('http://light.friendrnd.com/api/spaces/show/default'), TRUE);
+    $jsonData = json_decode(file_get_contents($config['base_url'].'spaces/show/default'), TRUE);
     $space = $this->spaces_model->getEntryByUid('default');
 
     if ($jsonData && $space && array_key_exists('space', $jsonData)) {
