@@ -1,6 +1,6 @@
 # Light Reminders
 
-A lightweight web app to help you keep the lights of your friendships on. Also integrates with your physical lights via [Philips Hue](http://www2.meethue.com/en-us/) lights
+A lightweight web app to help you keep the lights of your friendships on. Also integrates with your physical lights via [Philips Hue](http://www2.meethue.com/en-us/) lights. More details and write-up coming soon.
 
 ## Requirements
 
