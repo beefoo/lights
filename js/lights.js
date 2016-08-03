@@ -42,6 +42,7 @@ var CONFIG = {
     {value: 'month_6', label: 'Six Months', unit: 'month', amount: 6},
     {value: 'year_1', label: 'One Year', unit: 'year', amount: 1}
   ],
+  lightLevelRange: [0, 9],
   lights: [
     {value: 'bedroom', label: 'Bedroom', hueLightId: '1', image: 'img/lights/bedroom/light{level}.jpg'},
     {value: 'corridor', label: 'Corridor', hueLightId: '2', image: 'img/lights/corridor/light{level}.jpg'},
@@ -336,7 +337,8 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.getLevel = function(amount){
-    var level = Math.round(UTIL.lerp(0, 9, amount));
+    var r = this.opt.lightLevelRange;
+    var level = Math.round(UTIL.lerp(r[0], r[1], amount));
     return level;
   };
 

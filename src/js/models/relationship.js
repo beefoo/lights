@@ -60,7 +60,8 @@ var RelationshipModel = (function() {
   };
 
   RelationshipModel.prototype.getLevel = function(amount){
-    var level = Math.round(UTIL.lerp(0, 9, amount));
+    var r = this.opt.lightLevelRange;
+    var level = Math.round(UTIL.lerp(r[0], r[1], amount));
     return level;
   };
 
