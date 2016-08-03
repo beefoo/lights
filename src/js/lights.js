@@ -49,6 +49,7 @@ $(function(){
 
     // home
     '/app': function(){
+      this.hue_view = this.hue_view || new HueView(defaults);
       this.space_view = this.space_view || new SpaceView(defaults);
       this.space_view.init();
     },

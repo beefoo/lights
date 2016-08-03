@@ -75,6 +75,8 @@ var RelationshipView = (function() {
 
     this.$el.attr('level', this.opt.level);
     this.$el.html(this.template(this.opt));
+
+    if (!this.opt.readonly) $.publish('relationship.render', this.opt);
   };
 
   RelationshipView.prototype.showForm = function(){
