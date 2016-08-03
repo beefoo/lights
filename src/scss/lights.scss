@@ -129,6 +129,7 @@ $nav-height: 40px;
     background-size: 100% auto;
     position: relative;
     border: 1px solid $grayDarkest;
+    overflow: hidden;
 
     .flicker {
       position: absolute;
@@ -140,6 +141,20 @@ $nav-height: 40px;
       background-size: 100% auto;
       z-index: 2;
       @include animation(fadeInOut 12s infinite);
+    }
+
+    &:after {
+      background: url(../img/grain.gif);
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      opacity: 0.035;
+      z-index: 3;
+      // @include animation(grain 5s steps(10) infinite);
     }
 
     @for $i from 1 through 9 {
