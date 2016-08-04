@@ -6,6 +6,7 @@
 @import "common";
 
 html {
+  font-family: 'Raleway', sans-serif;
   background: $darkBlue;
   color: $white;
 }
@@ -74,9 +75,45 @@ $nav-height: 40px;
 }
 
 .intro,
-.empty {
+.empty,
+#footer {
   padding: 30px;
   text-align: center;
+}
+
+.intro {
+  padding-bottom: 0;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+
+  h1 {
+    font-size: 3.6em;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  h1 + h2 {
+    font-size: 1.9em;
+    letter-spacing: 2px;
+    margin-top: -1.2em;
+  }
+  p {
+    font-size: 1.4em;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: auto;
+    letter-spacing: 1px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  small {
+    color: $gray;
+  }
 }
 
 .relationships-wrapper {

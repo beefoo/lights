@@ -57,6 +57,7 @@ $(function(){
     // home
     '': function(){
       if (defaults.readOnly) {
+        $('#intro').addClass('active');
         this.space_readonly_view = this.space_readonly_view || new SpaceReadonlyView(defaults);
         this.space_readonly_view.init();
 
@@ -69,6 +70,13 @@ $(function(){
   };
 
   var router = Router(routes);
+
+  router.configure({
+    before: function(){
+      $('#intro').removeClass('active');
+    }
+  });
+
   if (defaults.readOnly) router.init('/');
   else router.init('/app');
 

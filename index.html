@@ -3,21 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Light Reminders</title>
-  <meta name="description" content="A lightweight web app to help you keep the lights of your friendships on">
+  <title>Friend R&amp;D | Light Reminders by Brian Foo</title>
+  <meta name="description" content="What if my friendships controlled the lights in my home?">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
   <link rel="stylesheet" href="/css/lights.css">
 </head>
 <body>
 
   <div id="app" class="app">
     <header id="header"></header>
+    <div id="intro" class="intro" role="contentinfo">
+      <h1>Light Reminders</h1>
+      <h2>A <a href="http://friendrnd.com/">Friend R&amp;D</a> Project</a> by <a href="http://brianfoo.com">Brian Foo</a></h2>
+      <p>Below is a representation of the lights in my home. Each light represents a person in my life, and each light's power level is determined by how long it's been since I've seen that person. The more I see my friends, the brighter my home. Read more about how I did this on the <a href="http://friendrnd.com/trials/lights">Friend R&amp;D website</a>.</p>
+    </div>
     <div id="main" role="main"></div>
     <div id="modal-container" class="modal" role="dialog" tabindex="-1">
       <div class="modal-content"></div>
       <a href="#close" class="modal-close" title="Close this modal" aria-label="Close" role="button">x</a>
     </div>
+    <footer id="footer">
+      <p><small>&copy; <a href="http://brianfoo.com">Brian Foo</a> 2016 &nbsp; | &nbsp; <a href="https://github.com/beefoo/lights" target="_blank">code</a></small></p>
+    </footer>
   </div>
 
   <script src="/js/config.js"></script>
