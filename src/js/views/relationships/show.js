@@ -67,7 +67,9 @@ var RelationshipView = (function() {
 
     if (this.opt.readonly) {
       this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');
-      this.opt.name = _.map(this.opt.name.split(' '), function(w){ return w.charAt(0).toUpperCase(); }).join(' ');
+      var len = this.opt.name.length;
+      this.opt.name = this.opt.name.charAt(0).toUpperCase();
+      this.opt.name += Array(len).join('*');
 
     } else {
       this.$el = this.$el || $('<a href="#/relationships/edit/'+r.id+'" class="relationship" data-id="'+r.id+'"></a>');
