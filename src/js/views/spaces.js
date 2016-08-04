@@ -150,7 +150,9 @@ var SpaceView = (function() {
     var $relationships = $('<div class="relationships">');
     if (this.opt.space) {
       var meetings = this.opt.space.meetings;
-      _.each(this.opt.space.relationships, function(r){
+      // sort by light order
+      var orderedRelationships = this._sortByList(this.opt.space.relationships, this.opt.lights, 'light', 'value');
+      _.each(orderedRelationships, function(r){
         if (r.active) {
           var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
           var view = new RelationshipView({relationship: r, meetings: rmeetings, readonly: _this.opt.readonly});
@@ -183,6 +185,14 @@ var SpaceView = (function() {
     // update view
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
     if (view) view.update(data);
+  };
+
+  SpaceView.prototype._sortByList = function(list, list_order_by, key, key_order_by) {
+    var order = _.pluck(list_order_by, key_order_by);
+    var sorted = _.sortBy(list, function(item){
+      return _.indexOf(order, item[key]);
+    });
+    return sorted;
   };
 
   return SpaceView;

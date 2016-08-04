@@ -45,16 +45,18 @@ var CONFIG = {
   ],
   lightLevelRange: [0, 9],
   lights: [
-    {value: 'bedroom', label: 'Bedroom', hueLightId: '1', image: 'img/lights/bedroom/light{level}.jpg'},
-    {value: 'corridor', label: 'Corridor', hueLightId: '2', image: 'img/lights/corridor/light{level}.jpg'},
-    {value: 'dining', label: 'Dining', hueLightId: '3', image: 'img/lights/dining/light{level}.jpg'},
-    {value: 'dining2', label: '2nd Dining', hueLightId: '4', image: 'img/lights/dining2/light{level}.jpg'},
-    {value: 'kitchen', label: 'Kitchen', hueLightId: '5', image: 'img/lights/kitchen/light{level}.jpg'},
-    {value: 'kitchen2', label: '2nd Kitchen', hueLightId: '6', image: 'img/lights/kitchen2/light{level}.jpg'},
-    {value: 'stairway', label: 'Stairway', hueLightId: '7', image: 'img/lights/stairway/light{level}.jpg'},
-    {value: 'stove', label: 'Stove', hueLightId: '8', image: 'img/lights/stove/light{level}.jpg'},
-    {value: 'workspace', label: 'Workspace', hueLightId: '9', image: 'img/lights/workspace/light{level}.jpg'},
-    {value: 'workspace2', label: '2nd Workspace', hueLightId: '10', image: 'img/lights/workspace2/light{level}.jpg'}
+    {value: 'living', label: 'Living Room', hueLightId: '1', image: 'img/lights/living/light{level}.jpg'},
+    {value: 'workspace', label: 'Workspace', hueLightId: '2', image: 'img/lights/workspace/light{level}.jpg'},
+    {value: 'stove', label: 'Stove', hueLightId: '11', image: 'img/lights/stove/light{level}.jpg'},
+    {value: 'dining', label: 'Dining', hueLightId: '6', image: 'img/lights/dining/light{level}.jpg'},
+    {value: 'stairway', label: 'Stairway', hueLightId: '10', image: 'img/lights/stairway/light{level}.jpg'},
+    {value: 'bedroom', label: 'Bedroom', hueLightId: '4', image: 'img/lights/bedroom/light{level}.jpg'},
+    {value: 'kitchen', label: 'Kitchen', hueLightId: '3', image: 'img/lights/kitchen/light{level}.jpg'},
+    {value: 'workspace2', label: '2nd Workspace', hueLightId: '7', image: 'img/lights/workspace2/light{level}.jpg'},
+    {value: 'living2', label: '2nd Living Room', hueLightId: '8', image: 'img/lights/living2/light{level}.jpg'},
+    {value: 'kitchen2', label: '2nd Kitchen', hueLightId: '9', image: 'img/lights/kitchen2/light{level}.jpg'},
+    {value: 'dining2', label: '2nd Dining', hueLightId: '12', image: 'img/lights/dining2/light{level}.jpg'},
+    {value: 'corridor', label: 'Corridor', hueLightId: '5', image: 'img/lights/corridor/light{level}.jpg'}
   ]
 };
 
@@ -1593,7 +1595,9 @@ var SpaceView = (function() {
     var $relationships = $('<div class="relationships">');
     if (this.opt.space) {
       var meetings = this.opt.space.meetings;
-      _.each(this.opt.space.relationships, function(r){
+      // sort by light order
+      var orderedRelationships = this._sortByList(this.opt.space.relationships, this.opt.lights, 'light', 'value');
+      _.each(orderedRelationships, function(r){
         if (r.active) {
           var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
           var view = new RelationshipView({relationship: r, meetings: rmeetings, readonly: _this.opt.readonly});
@@ -1626,6 +1630,14 @@ var SpaceView = (function() {
     // update view
     var view = _.find(this.$relationshipViews, function(v){ return v.id()==id; });
     if (view) view.update(data);
+  };
+
+  SpaceView.prototype._sortByList = function(list, list_order_by, key, key_order_by) {
+    var order = _.pluck(list_order_by, key_order_by);
+    var sorted = _.sortBy(list, function(item){
+      return _.indexOf(order, item[key]);
+    });
+    return sorted;
   };
 
   return SpaceView;
