@@ -1,7 +1,9 @@
 <nav class="nav main" role="menubar">
 
   <% if (user) { %>
+    <% if (readOnly) { %>
     <a href="#/" role="menuitem" class="nav-item">Home</a>
+    <% } %>
     <a href="#/app" role="menuitem" class="nav-item">My Relationships</a>
     <a href="#/relationships/add" role="menuitem" class="nav-item add-relationship">Add Relationship</a>
     <a href="#/account" role="menuitem" class="nav-item">Account</a>

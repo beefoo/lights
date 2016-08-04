@@ -56,12 +56,20 @@ $(function(){
 
     // home
     '': function(){
-      this.space_readonly_view = this.space_readonly_view || new SpaceReadonlyView(defaults);
-      this.space_readonly_view.init();
+      if (defaults.readOnly) {
+        this.space_readonly_view = this.space_readonly_view || new SpaceReadonlyView(defaults);
+        this.space_readonly_view.init();
+
+      } else {
+        this.hue_view = this.hue_view || new HueView(defaults);
+        this.space_view = this.space_view || new SpaceView(defaults);
+        this.space_view.init();
+      }
     }
   };
 
   var router = Router(routes);
-  router.init('/');
+  if (defaults.readOnly) router.init('/');
+  else router.init('/app');
 
 });

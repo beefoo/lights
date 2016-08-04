@@ -1,6 +1,7 @@
 var CONFIG = {
   base_url: '/api',
   base_image_url: '/',
+  readOnly: false,
   methods: [
     {value: 'in_person', label: 'In Person', verb_past: 'met with', verb: 'meet with'},
     {value: 'call', label: 'Phone / Video', verb_past: 'called', verb: 'call'},
