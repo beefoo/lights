@@ -84,11 +84,11 @@ $nav-height: 40px;
   position: relative;
   margin: 0 auto;
   padding: 20px;
-  max-width: 1200px;
+  // max-width: 1200px;
 
   .relationship {
     display: inline-block;
-    width: 240px;
+    width: 400px;
     margin: 0 8px 20px;
     position: relative;
     @include box-sizing();
@@ -104,6 +104,14 @@ $nav-height: 40px;
   .caption {
     padding: 0.5em 0;
     text-align: left;
+    @include clearfix();
+    .left {
+      float: left;
+    }
+    .right {
+      float: right;
+      text-align: right;
+    }
 
     .light-label {
       text-transform: uppercase;
@@ -117,7 +125,6 @@ $nav-height: 40px;
     }
     .meeting-label {
       font-size: 0.8em;
-      margin-top: 6px;
       color: $grayLight;
     }
   }
