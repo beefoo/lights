@@ -45,6 +45,7 @@ To integrate with your physical lights:
    }
    ```
 5. Update the list of lights that correlate to the lights in your home; you can customize the labels and images
+   - In this example, there are 10 images (named light0.jpg, light1.jpg, ..., light9.jpg) associated with the different states of each of the lights (bedroom, corridor, dining, kitchen, etc)
 6. In the app `http://localhost/`, update your relationships with the appropriate lights that you defined in the previous step
 7. Now your physical lights should reflect the state of the virtual lights in the app
 
