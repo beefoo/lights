@@ -86,7 +86,7 @@ var HueView = (function() {
   };
 
   HueView.prototype.setBrightness = function(lightId, bri){
-    this._put(lightId, {"on": true, "bri": bri});
+    this._put(lightId, {"bri": bri});
   };
 
   HueView.prototype.toggleLight = function(lightId){
