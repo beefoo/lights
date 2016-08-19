@@ -1,5 +1,8 @@
 <div class="light level<%= level %> <%= relationship.light %>" style="background-image: url(<%= images[0] %>)">
   <div class="flicker" style="background-image: url(<%= images[1] %>)"></div>
+  <% if (hueLight) { %>
+    <div class="status <%= hueLight.state.on ? 'on' : 'off' %>"></div>
+  <% } %>
 </div>
 
 <div class="caption">

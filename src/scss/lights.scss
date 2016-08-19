@@ -202,6 +202,22 @@ $nav-height: 40px;
       // @include animation(grain 5s steps(10) infinite);
     }
 
+    .status {
+      display: block;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      z-index: 4;
+      opacity: 0.8;
+      @include border-radius(10px);
+      background: $red;
+      &.on {
+        background: $green;
+      }
+    }
+
     @for $i from 1 through 9 {
       &.level#{$i} {
         background-image: url(../img/lights/workspace/light#{$i - 1}.jpg);
@@ -240,6 +256,25 @@ $nav-height: 40px;
     display: none;
     &.active {
       display: block;
+    }
+  }
+}
+
+.toggle-light-status {
+  background: $red;
+  &:hover {
+    background: lighten($red, 5%);
+  }
+  &:before {
+    content: 'off';
+  }
+  &.active {
+    background: $green;
+    &:hover {
+      background: lighten($green, 5%);
+    }
+    &:before {
+      content: 'on';
     }
   }
 }

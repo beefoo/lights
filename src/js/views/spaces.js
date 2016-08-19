@@ -128,6 +128,15 @@ var SpaceView = (function() {
       _this.deleteMeeting(id);
     });
 
+    $.subscribe('hue.light.load', function(e, hueLight){
+      console.log('Load Hue light', hueLight);
+      _this.onHueLightLoad(hueLight);
+    });
+
+    $.subscribe('hue.light.toggle', function(e, hueLightId){
+      _this.toggleHueLight(hueLightId);
+    });
+
   };
 
   SpaceView.prototype.loadSpace = function(){
@@ -137,6 +146,17 @@ var SpaceView = (function() {
     }
     var props = this.opt.user.space || {};
     this.space = new SpaceModel(props);
+  };
+
+  SpaceView.prototype.onHueLightLoad = function(hueLight){
+    var views = _.filter(this.$relationshipViews, function(v){
+      var light = v.light();
+      return hueLight.id==light.hueLightId;
+    });
+
+    _.each(views, function(view){
+      view.setHueLight(hueLight);
+    });
   };
 
   SpaceView.prototype.render = function(){
@@ -166,6 +186,17 @@ var SpaceView = (function() {
 
   SpaceView.prototype.save = function(){
     this.space.save();
+  };
+
+  SpaceView.prototype.toggleHueLight = function(hueLightId){
+    var views = _.filter(this.$relationshipViews, function(v){
+      var light = v.light();
+      return hueLightId==light.hueLightId;
+    });
+
+    _.each(views, function(view){
+      view.toggleHueLight();
+    });
   };
 
   SpaceView.prototype.updateMeeting = function(id, data){

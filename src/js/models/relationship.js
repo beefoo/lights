@@ -1,7 +1,9 @@
 var RelationshipModel = (function() {
   function RelationshipModel(props, options) {
     var defaults = this.defaultProps();
-    var defaultOptions = {};
+    var defaultOptions = {
+      hueLight: false
+    };
     this.props = _.extend(defaults, props);
     this.opt = _.extend(defaultOptions, CONFIG);
     if (options) this.opt = _.extend(defaultOptions, CONFIG, options);
@@ -75,6 +77,10 @@ var RelationshipModel = (function() {
     return _.findWhere(this.opt.lights, {value: lightValue});
   };
 
+  RelationshipModel.prototype.getHueLight = function(){
+    return this.opt.hueLight;
+  };
+
   RelationshipModel.prototype.getPercent = function(meetings){
     // find the difference between now and last meeting
     var meeting = this.getLastMeeting(meetings);
@@ -123,6 +129,10 @@ var RelationshipModel = (function() {
 
   RelationshipModel.prototype.onUpdate = function(){
 
+  };
+
+  RelationshipModel.prototype.setHueLight = function(hueLight){
+    this.opt.hueLight = _.clone(hueLight);
   };
 
   RelationshipModel.prototype.toJSON = function(){

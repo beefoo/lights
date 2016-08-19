@@ -6,7 +6,8 @@ var RelationshipOptionsView = (function() {
       relationship: false,
       meetings: [],
       last_meeting: false,
-      rhythm: false
+      rhythm: false,
+      hueLight: false
     };
     this.opt = _.extend(defaults, CONFIG, options);
     this.$el = $(this.opt.el);
@@ -47,6 +48,11 @@ var RelationshipOptionsView = (function() {
       e.preventDefault();
       $.publish('modals.open', [MeetingListView, {relationship: _this.opt.relationship, meetings: _this.opt.meetings}]);
     });
+
+    this.$el.on('click', '.toggle-light-status', function(e){
+      e.preventDefault();
+      _this.toggleLightStatus($(this));
+    });
   };
 
   RelationshipOptionsView.prototype.render = function(){
@@ -59,6 +65,12 @@ var RelationshipOptionsView = (function() {
 
     this.opt.last_meeting = lastMeeting
     this.opt.last_meeting.method = _.findWhere(this.opt.methods, {value: lastMeeting.method});
+  };
+
+  RelationshipOptionsView.prototype.toggleLightStatus = function($link){
+    $link.toggleClass('active');
+    this.opt.hueLight.state.on = !this.opt.hueLight.state.on;
+    $.publish('hue.light.toggle', this.opt.hueLight.id);
   };
 
   return RelationshipOptionsView;

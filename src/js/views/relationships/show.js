@@ -40,6 +40,10 @@ var RelationshipView = (function() {
     return this.relationshipModel ? this.relationshipModel.id() : '';
   };
 
+  RelationshipView.prototype.light = function(){
+    return this.relationshipModel ? this.relationshipModel.getLight() : '';
+  };
+
   RelationshipView.prototype.loadListeners = function(){
     var _this = this;
 
@@ -64,6 +68,7 @@ var RelationshipView = (function() {
     this.opt.images = this.relationshipModel.getImages(this.opt.level);
     this.opt.relationship = r;
     this.opt.name = r.name;
+    this.opt.hueLight = this.relationshipModel.getHueLight();
 
     if (this.opt.readonly) {
       this.$el = this.$el || $('<div class="relationship readonly" data-id="'+r.id+'"></div>');
@@ -81,9 +86,18 @@ var RelationshipView = (function() {
     if (!this.opt.readonly) $.publish('relationship.render', this.opt);
   };
 
+  RelationshipView.prototype.setHueLight = function(hueLight){
+    this.relationshipModel.setHueLight(hueLight);
+    this.render();
+  };
+
   RelationshipView.prototype.showForm = function(){
-    var data = {relationship: this.relationshipModel.toJSON(), meetings: this.opt.meetings};
+    var data = {relationship: this.relationshipModel.toJSON(), meetings: this.opt.meetings, hueLight: this.relationshipModel.getHueLight()};
     $.publish('modals.open', [RelationshipOptionsView, data]);
+  };
+
+  RelationshipView.prototype.toggleHueLight = function(){
+    this.render();
   };
 
   RelationshipView.prototype.update = function(data){

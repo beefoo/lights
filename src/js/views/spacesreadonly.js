@@ -26,6 +26,10 @@ var SpaceReadonlyView = (function() {
     }
   };
 
+  SpaceReadonlyView.prototype.loadListeners = function(){
+
+  };
+
   SpaceReadonlyView.prototype.loadSpace = function(){
     var _this = this;
     if (this.loaded) return false;

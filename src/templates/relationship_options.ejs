@@ -10,6 +10,11 @@
   <p> <%= rhythm.label %></p>
 <% } %>
 
+<% if (hueLight) { %>
+  <h4>Light Status</h4>
+  <button class="toggle-light-status <%= hueLight.state.on ? 'active' : '' %>"></button>
+<% } %>
+
 <div class="button-group">
   <button class="add-meeting">Add New Meeting</button>
   <button class="edit-relationship">Edit Settings</button>
