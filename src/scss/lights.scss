@@ -212,7 +212,10 @@ $nav-height: 40px;
       z-index: 4;
       opacity: 0.8;
       @include border-radius(10px);
-      background: $red;
+      background: $gray;
+      &.off {
+        background: $red;
+      }
       &.on {
         background: $green;
       }

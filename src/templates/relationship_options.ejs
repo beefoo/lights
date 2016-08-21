@@ -12,7 +12,11 @@
 
 <% if (hueLight) { %>
   <h4>Light Status</h4>
-  <button class="toggle-light-status <%= hueLight.state.on ? 'active' : '' %>"></button>
+  <% if (hueLight.state.reachable) { %>
+    <button class="toggle-light-status <%= hueLight.state.on ? 'active' : '' %>"></button>
+  <% } else { %>
+    <p>Offline</p>
+  <% } %>
 <% } %>
 
 <div class="button-group">
