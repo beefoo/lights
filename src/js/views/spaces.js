@@ -13,6 +13,7 @@ var SpaceView = (function() {
     this.$relationshipViews = [];
     this.template = this.opt.template;
     this.opt.user = this.opt.user_model.getUserData();
+    this.hueLights = [];
     this.loadListeners();
   }
 
@@ -149,14 +150,8 @@ var SpaceView = (function() {
   };
 
   SpaceView.prototype.onHueLightLoad = function(hueLight){
-    var views = _.filter(this.$relationshipViews, function(v){
-      var light = v.light();
-      return hueLight.id==light.hueLightId;
-    });
-
-    _.each(views, function(view){
-      view.setHueLight(hueLight);
-    });
+    this.hueLights.push(hueLight);
+    this.render();
   };
 
   SpaceView.prototype.render = function(){
@@ -176,6 +171,9 @@ var SpaceView = (function() {
         if (r.active) {
           var rmeetings = _.where(meetings, {relationship_id: r.id, active: 1});
           var view = new RelationshipView({relationship: r, meetings: rmeetings, readonly: _this.opt.readonly});
+          var light = view.light();
+          var hueLight = _.findWhere(_this.hueLights, {id: light.hueLightId});
+          if (hueLight) view.setHueLight(hueLight);
           $relationships.append(view.el());
           _this.$relationshipViews.push(view);
         }

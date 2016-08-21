@@ -8,14 +8,15 @@ var HueView = (function() {
     };
     this.opt = _.extend(defaults, options);
 
-    if (this.opt.hueEnabled) this.init();
+    if (this.opt.hueEnabled) this.loadListeners();
   }
 
   HueView.prototype.init = function(){
+    if (!this.opt.hueEnabled) return false;
+
     this.lightsURL = this.opt.hueEndpoint + '/' + this.opt.hueUsername + '/lights';
     this.lights = {};
     this.loadLights();
-    this.loadListeners();
   };
 
   HueView.prototype.loadLights = function(){
@@ -92,24 +93,31 @@ var HueView = (function() {
   HueView.prototype.toggleLight = function(lightId){
     if (!_.has(this.lights, lightId)) return false;
     var light = this.lights[lightId];
-    if (light.state.on) this.turnOff();
-    else this.turnOn();
+    if (light.state.on) this.turnOn(lightId);
+    else this.turnOff(lightId);
+  };
+
+  HueView.prototype.turn = function(lightId, on){
+    if (!_.has(this.lights, lightId)) return false;
+    var light = this.lights[lightId];
+    var bri = light.state.bri;
+    this._put(lightId, {"on": on, "bri": bri});
   };
 
   HueView.prototype.turnOff = function(lightId){
-    this._put(lightId, {"on": false});
+    this.turn(lightId, false);
   };
 
   HueView.prototype.turnOn = function(lightId, amount){
-    this._put(lightId, {"on": true});
+    this.turn(lightId, true);
   };
 
   HueView.prototype._put = function(lightId, data) {
-    // console.log(data);
+    console.log(lightId, data);
     // return false;
 
     $.ajax({
-        url: this.lightURL + '/' + lightId + '/state',
+        url: this.lightsURL + '/' + lightId + '/state',
         type: 'PUT',
         data: JSON.stringify(data),
         success: function(resp) {

@@ -51,6 +51,7 @@ $(function(){
     '/app': function(){
       this.hue_view = this.hue_view || new HueView(defaults);
       this.space_view = this.space_view || new SpaceView(defaults);
+      this.hue_view.init();
       this.space_view.init();
     },
 
