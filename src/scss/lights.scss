@@ -251,6 +251,16 @@ $nav-height: 40px;
 
 }
 
+@media screen and (max-width: 600px) {
+  .relationships-wrapper {
+    .relationship {
+      display: block;
+      width: 100%;
+      margin: 0 0 20px;
+    }
+  }
+}
+
 .space {
   margin-top: $nav-height;
 
