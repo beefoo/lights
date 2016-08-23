@@ -131,7 +131,7 @@ $nav-height: 40px;
     @include box-sizing();
     @include animation(fadeIn 9s);
 
-    &.readonly:nth-child(n+10) {
+    &.readonly:nth-child(n+13) {
       display: none;
     }
 
