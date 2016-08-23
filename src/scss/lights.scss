@@ -131,6 +131,10 @@ $nav-height: 40px;
     @include box-sizing();
     @include animation(fadeIn 9s);
 
+    &.readonly:nth-child(n+10) {
+      display: none;
+    }
+
     @for $i from 1 through 9 {
       &[level="#{$i}"] {
         @include animation-duration(#{(9-$i)/2}s);
